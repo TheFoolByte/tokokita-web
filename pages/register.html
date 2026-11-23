@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Daftar — TokoKita</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body data-page="register">
+
+<header class="site">
+  <div class="header-in">
+    <div class="logo" onclick="go('index.html')" role="button" aria-label="TokoKita - beranda">Toko<em>Kita</em></div>
+    <div class="head-actions">
+      <a class="icon-btn" href="cart.html" aria-label="Keranjang belanja">Keranjang<span class="cart-badge" id="cartBadge" style="display:none">0</span></a>
+      <a class="icon-btn" href="orders.html" aria-label="Pesanan saya">Pesanan</a>
+      <div class="userchip" id="userChip"></div>
+    </div>
+  </div>
+</header>
+
+<main class="page">
+  <div class="auth-card">
+    <div class="card">
+      <h2 style="margin:0 0 4px;font-size:26px">Daftar Akun Baru</h2>
+      <p class="small" style="margin:0 0 6px">Buat akun TokoKita dalam waktu kurang dari satu menit, lalu langsung mulai belanja.</p>
+      <form onsubmit="return doRegister(event)" novalidate>
+        <label for="regName">Nama lengkap</label><input id="regName" type="text" placeholder="Nama kamu" autocomplete="name">
+        <label for="regEmail">Email</label><input id="regEmail" type="text" placeholder="nama@email.com" autocomplete="email">
+        <label for="regPass">Kata sandi</label><input id="regPass" type="password" placeholder="Minimal 6 karakter" autocomplete="new-password">
+        <label for="regPass2">Ulangi kata sandi</label><input id="regPass2" type="password" placeholder="Ketik ulang kata sandi" autocomplete="new-password">
+        <button class="btn btn-brand" type="submit" style="width:100%;margin-top:18px">Daftar &amp; Masuk</button>
+      </form>
+      <div id="regResult"></div>
+      <p class="small" style="text-align:center;margin:16px 0 0">Sudah punya akun? <a href="login.html">Masuk di sini</a></p>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="foot-in">
+    <div>
+      <div class="foot-logo">Toko<em>Kita</em></div>
+      <p class="small" style="max-width:36ch;margin-top:12px">Toko online untuk kebutuhan sehari-hari. Produk dipilih dengan hati-hati, harga jelas, dan pengiriman yang bisa diandalkan.</p>
+    </div>
+    <div><h4>Belanja</h4><a href="../index.html">Semua Produk</a></div>
+    <div><h4>Bantuan</h4><a href="info.html?page=bantuan">Pusat Bantuan</a><a href="orders.html">Lacak Pesanan</a></div>
+  </div>
+  <div class="foot-bottom"><span>© 2026 TokoKita. Semua hak dilindungi.</span><span>Pembayaran aman · COD tersedia</span></div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script src="../js/data.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/app.js"></script>
+</body>
+</html>

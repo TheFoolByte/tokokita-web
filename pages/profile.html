@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Profil — TokoKita</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body data-page="profile">
+
+<header class="site">
+  <div class="header-in">
+    <div class="logo" onclick="go('index.html')" role="button" aria-label="TokoKita - beranda">Toko<em>Kita</em></div>
+    <div class="head-actions">
+      <a class="icon-btn" href="cart.html" aria-label="Keranjang belanja">Keranjang<span class="cart-badge" id="cartBadge" style="display:none">0</span></a>
+      <a class="icon-btn" href="orders.html" aria-label="Pesanan saya">Pesanan</a>
+      <div class="userchip" id="userChip"></div>
+    </div>
+  </div>
+</header>
+
+<main class="page">
+  <div class="page-head"><h2>Pengaturan Akun</h2><p>Kelola profil dan foto akunmu.</p></div>
+  <div class="two" style="grid-template-columns:.85fr 1.15fr">
+    <div class="card">
+      <h3 style="margin-top:0;font-size:22px">Foto Profil</h3>
+      <div style="display:flex;gap:14px;align-items:center">
+        <div class="avatar" id="profileAvatar" style="width:72px;height:72px;flex-basis:72px;font-size:26px">?</div>
+        <div><b id="profileName">Pengunjung</b><div class="small" id="profileRole">Belum masuk</div></div>
+      </div>
+      <label for="fileInput">Unggah foto baru (JPG / PNG)</label>
+      <input type="file" id="fileInput" onchange="handleFile(this)">
+      <div id="uploadResult"></div>
+      <div id="fileList" style="margin-top:10px"></div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0;font-size:22px">Informasi Pribadi</h3>
+      <label>Nama lengkap</label><input type="text" id="pfName" placeholder="Nama kamu">
+      <label>Email</label><input type="text" id="pfEmail" placeholder="email@contoh.id">
+      <label>Nomor HP</label><input type="text" id="pfPhone" placeholder="08xx-xxxx-xxxx">
+      <label>Alamat pengiriman</label><textarea id="pfAddr" rows="2" placeholder="Jalan, nomor rumah, kota"></textarea>
+      <button class="btn btn-brand" type="button" style="margin-top:14px" onclick="toast('Perubahan profil disimpan')">Simpan Perubahan</button>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="foot-in">
+    <div>
+      <div class="foot-logo">Toko<em>Kita</em></div>
+      <p class="small" style="max-width:36ch;margin-top:12px">Toko online untuk kebutuhan sehari-hari. Produk dipilih dengan hati-hati, harga jelas, dan pengiriman yang bisa diandalkan.</p>
+    </div>
+    <div><h4>Belanja</h4><a href="../index.html">Semua Produk</a></div>
+    <div><h4>Bantuan</h4><a href="info.html?page=bantuan">Pusat Bantuan</a><a href="orders.html">Lacak Pesanan</a></div>
+  </div>
+  <div class="foot-bottom"><span>© 2026 TokoKita. Semua hak dilindungi.</span><span>Pembayaran aman · COD tersedia</span></div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script src="../js/data.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/app.js"></script>
+</body>
+</html>
