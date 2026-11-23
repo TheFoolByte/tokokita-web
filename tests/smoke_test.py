@@ -127,6 +127,8 @@ def main():
         check("halaman utama tersaji", status == 200 and b"Toko" in raw, status)
         status, raw, _ = req("/server.py")
         check("server.py tidak ikut tersaji", status == 404, status)
+        status, raw, _ = req("/mitm_mcp_traffic.db")
+        check("file .db tidak ikut tersaji", status == 404, status)
 
         print()
         if failed:

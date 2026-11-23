@@ -326,7 +326,7 @@ class Handler(SimpleHTTPRequestHandler):
         if path.startswith("/uploads/"):
             return self.serve_upload(path, query)
 
-        if path in ("/server.py", "/tokokita.db") or path.startswith(("/tasks/", "/tests/")):
+        if path.endswith((".py", ".db")) or path.startswith(("/tasks/", "/tests/", "/.git")):
             return self.send_error(404)
 
         return super().do_GET()
