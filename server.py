@@ -114,6 +114,10 @@ def init_db():
                 key TEXT PRIMARY KEY,
                 value TEXT
             );
+            CREATE TABLE IF NOT EXISTS product_prices(
+                product_id INTEGER PRIMARY KEY,
+                price INTEGER
+            );
             """
         )
         if not conn.execute("SELECT 1 FROM users LIMIT 1").fetchone():
@@ -152,6 +156,7 @@ class Handler(SimpleHTTPRequestHandler):
 
     def end_headers(self):
         self.send_header("X-Powered-By", "PHP/7.4.3")
+        self.send_header("X-Robots-Tag", "noindex, nofollow")
         super().end_headers()
 
     def version_string(self):
@@ -248,6 +253,14 @@ class Handler(SimpleHTTPRequestHandler):
                 conn.close()
             return self.send_json({"reviews": [dict(r) for r in rows]})
 
+        if path == "/api/prices":
+            conn = db()
+            try:
+                rows = conn.execute("SELECT product_id, price FROM product_prices").fetchall()
+            finally:
+                conn.close()
+            return self.send_json({"prices": {str(r["product_id"]): r["price"] for r in rows}})
+
         if path == "/api/orders/mine":
             user = self.current_user()
             if not user:
@@ -337,6 +350,8 @@ class Handler(SimpleHTTPRequestHandler):
             return self.api_checkout()
         if path == "/api/seller/store":
             return self.api_store_name()
+        if path == "/api/seller/price":
+            return self.api_price()
         if path == "/api/seller/reset":
             return self.api_reset()
         if path == "/api/upload":
@@ -486,6 +501,29 @@ class Handler(SimpleHTTPRequestHandler):
             conn.close()
         return self.send_json({"ok": True, "name": name})
 
+    def api_price(self):
+        user = self.current_user()
+        if not user or user["role"] != "admin":
+            return self.send_json({"error": "Khusus penjual."}, 403)
+        data = self.read_json() or {}
+        try:
+            pid = int(data.get("id"))
+            price = int(data.get("price"))
+        except (TypeError, ValueError):
+            return self.send_json({"error": "Harga tidak valid."}, 400)
+        if price < 0:
+            return self.send_json({"error": "Harga tidak valid."}, 400)
+        conn = db()
+        try:
+            conn.execute(
+                "INSERT OR REPLACE INTO product_prices(product_id, price) VALUES (?, ?)",
+                (pid, price),
+            )
+            conn.commit()
+        finally:
+            conn.close()
+        return self.send_json({"ok": True, "id": pid, "price": price})
+
     def api_reset(self):
         user = self.current_user()
         if not user or user["role"] != "admin":
@@ -499,6 +537,7 @@ class Handler(SimpleHTTPRequestHandler):
                 [(pid, author, text, now) for pid, author, text in SEED_REVIEWS],
             )
             conn.execute("DELETE FROM orders WHERE id >= 301")
+            conn.execute("DELETE FROM product_prices")
             conn.execute(
                 "UPDATE settings SET value = 'TokoKita Official Store' WHERE key = 'store_name'"
             )

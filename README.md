@@ -143,6 +143,8 @@ Semua output di-hardcode di `SHELL_OUTPUTS` pada `server.py`; tidak ada
 | GET | `/api/orders/mine` | pesanan milik sendiri |
 | GET | `/api/orders/<id>` | **IDOR** |
 | GET | `/api/seller/summary` | admin: semua pesanan + nama toko |
+| GET | `/api/prices` | harga override dari penjual |
+| POST | `/api/seller/price` | admin: ubah harga produk (persist) |
 | POST | `/api/seller/store` | admin: ubah nama toko |
 | POST | `/api/seller/reset` | admin: pulihkan data seed |
 | POST | `/api/upload?name=...` | **upload tanpa validasi** |

@@ -89,6 +89,21 @@ def main():
         co = json.loads(raw)
         check("checkout harga client (total Rp100)", status == 200 and co.get("total") == 100, raw)
 
+        # 4b. Harga dari dashboard penjual tersimpan dan dipakai katalog
+        admin_jar = http.cookiejar.CookieJar()
+        admin = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(admin_jar))
+        req("/api/login", {"identifier": "kamila", "password": "kamila123"}, admin)
+        status, raw, _ = req("/api/seller/price", {"id": 5, "price": 12345}, admin)
+        check("penjual ubah harga tersimpan", status == 200, raw)
+        status, raw, _ = req("/api/prices")
+        check("harga baru dipakai katalog",
+              json.loads(raw).get("prices", {}).get("5") == 12345, raw)
+        status, raw, _ = req("/api/seller/price", {"id": 5, "price": 1}, opener)
+        check("pembeli tidak bisa ubah harga", status == 403, raw)
+        req("/api/seller/reset", {}, admin)
+        status, raw, _ = req("/api/prices")
+        check("reset mengembalikan harga", json.loads(raw).get("prices") == {}, raw)
+
         # 5. Stored XSS: server menyimpan payload mentah
         payload = "<img src=x onerror=alert(1)>"
         req("/api/reviews", {"pid": 1, "author": "Jun", "text": payload}, opener)

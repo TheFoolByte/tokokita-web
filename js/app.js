@@ -50,6 +50,15 @@ function loadShopState() {
   /* Keranjang tetap di browser; pesanan & ulasan disimpan server. */
   cart = loadJSON("tokokita_cart", []);
 }
+/* Harga hasil edit penjual disimpan server; terapkan ke katalog. */
+function loadPrices() {
+  return api("/api/prices").then(function (res) {
+    var prices = (res && res.prices) || {};
+    PRODUCTS.forEach(function (p) {
+      if (prices[p.id] !== undefined) p.price = prices[p.id];
+    });
+  });
+}
 
 /* ---------- katalog ---------- */
 function renderCats() {
@@ -322,11 +331,14 @@ function renderSeller() {
 }
 function savePrice(id) {
   var v = parseInt(document.getElementById("sp" + id).value, 10);
-  if (isNaN(v) || v < 0) return;
+  if (isNaN(v) || v < 0) { toast("Harga tidak valid"); return; }
   var p = PRODUCTS.find(function (x) { return x.id === id; });
-  p.price = v;
-  renderProducts();
-  toast("Harga " + p.name.slice(0, 26) + "… diperbarui jadi " + fmt(v));
+  api("/api/seller/price", {id: id, price: v}).then(function (res) {
+    if (res.error) { toast(res.error); return; }
+    p.price = v;
+    renderProducts();
+    toast("Harga " + p.name.slice(0, 26) + "… diperbarui jadi " + fmt(v));
+  });
 }
 function saveStoreName() {
   var v = $("storeNameInput").value.trim();
@@ -365,7 +377,7 @@ document.addEventListener("DOMContentLoaded", function () {
   var page = document.body.getAttribute("data-page") || "home";
 
   /* Tunggu sesi dari server selesai dimuat sebelum render halaman. */
-  restoreSession().then(function () {
+  Promise.all([restoreSession(), loadPrices()]).then(function () {
     if (page === "home") {
       renderCats();
       renderProducts();
