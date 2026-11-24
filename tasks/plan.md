@@ -1,53 +1,55 @@
-# Implementation Plan: Backend TokoKita (lab rentan)
+# Rencana Implementasi: Demo Pentest Publik TokoKita
 
-## Overview
-Menambah server lokal untuk TokoKita supaya 5 celah bisa didemokan live:
-SQLi bypass login, IDOR pesanan, harga checkout dari client, stored XSS
-ulasan + pencurian cookie sesi, dan upload file + shell PHP simulasi.
+## Ringkasan
+Tambahkan endpoint SQLi khusus untuk sqlmap yang hanya membaca fixture sintetis terisolasi; perbarui runbook agar sesuai aplikasi backend dan deployment saat ini. Latihan Burp menggunakan celah yang sudah ada. Latihan Nmap hanya menargetkan TokoKita lokal, bukan domain/IP Railway.
 
-## Architecture Decisions
-- **Python stdlib** (`http.server` + `sqlite3`), satu file `server.py`. Tidak
-  ada dependency baru, konsisten dengan cara jalan proyek (`python3 -m http.server`).
-- **Bind 127.0.0.1** secara default + peringatan lab. Server ini sengaja rentan.
-- **SQLi nyata** lewat konkatenasi string di query login; error SQL dikembalikan
-  ke client supaya bisa dipakai demo error-based.
-- **Sesi cookie** `PHPSESSID` tanpa `HttpOnly` (supaya bisa dicuri XSS) plus
-  fallback cookie `user` yang dipercaya apa adanya (jalur cadangan demo).
-- **Shell PHP simulasi**: file `.php` di `/uploads/` mengembalikan output
-  palsu (`whoami`, `ls`, dst). Tidak ada `os.system`/`exec` sama sekali.
-- **Data milik server**: users, orders, reviews, store name. Keranjang tetap
-  di localStorage karena checkout justru mengirim harga dari client (celahnya).
-- **Harga checkout dipercaya dari client** sesuai skenario demo.
-- Frontend tetap ES5 dan memakai struktur/fungsi yang sudah ada; hanya isi
-  fungsi yang diubah dari localStorage ke `fetch`.
+## Keputusan arsitektur
+- Pertahankan Python stdlib dan SQLite; tanpa dependency baru.
+- Endpoint sqlmap hanya query ke tabel khusus berisi fixture dummy. Query dan hasil dibatasi, tanpa mutasi; input parameter dibatasi 4096 karakter.
+- Panduan sqlmap memakai teknik boolean/error; hindari ekstraksi time-based yang lambat.
+- Jangan mengarahkan tool otomatis ke endpoint akun/pesanan/ulasan atau infrastruktur hosting.
+- Perbarui dokumentasi presenter dalam Bahasa Indonesia; panduan lama di Downloads menjadi referensi, bukan sumber kebenaran implementasi.
+- Tidak deploy ke Railway tanpa persetujuan eksplisit baru.
 
-## Task List
+## Daftar tugas
 
-### Phase 1: Server + data
-- [x] Task 1: `server.py` — SQLite schema, seed users/orders/reviews, static file serving.
-- [x] Task 2: Auth API — login (SQLi), register, logout, `/api/me`, cookie sesi.
+### Fase 1 — Data dan skenario lab
+- [x] Tugas 1: Tambah 12 akun demo sintetis, termasuk akun Kamila admin dan Rohandhika pembeli.
+- [x] Tugas 2: Batasi collector XSS ke cookie akun Kamila admin demo, yang dikendalikan presenter.
+- [x] Tugas 3: Tetapkan kontrak endpoint dan fixture sintetis terpisah untuk sqlmap.
+- [x] Tugas 4: Implementasikan endpoint SQLi read-only dengan batas input/waktu/hasil.
+- [x] Tugas 5: Tambahkan tes jumlah akun, gating cookie collector, isolasi DB, input invalid/besar, dan non-mutasi.
 
-### Phase 2: Celah yang didemokan
-- [x] Task 3: Ulasan server-side + render tanpa escape (stored XSS) + `/api/collect`.
-- [x] Task 4: Checkout percaya harga client; IDOR `GET /api/orders/<id>`.
-- [x] Task 5: Upload tanpa validasi + shell PHP simulasi di `/uploads/*.php`.
+### Checkpoint — lab lokal
+- [x] `python3 tests/smoke_test.py` lulus.
+- [x] Tes baru membuktikan data di luar fixture tidak dibaca/diubah dan collector menolak cookie pembeli.
+- [x] sqlmap mendeteksi endpoint fixture di localhost; curl menunjukkan empat record sintetis.
 
-### Phase 3: Frontend + verifikasi
-- [x] Task 6: `js/auth.js`, `js/app.js`, `js/data.js`, `pages/seller.html` disambung ke API.
-- [x] Task 7: `tests/smoke_test.py` — cek SQLi, IDOR, harga, XSS tersimpan, cookie, shell.
-- [x] Task 8: README cara jalan + langkah demo.
+### Fase 2 — Panduan presenter
+- [x] Tugas 6: Tulis `docs/demo-runbook.md` dalam Bahasa Indonesia: Burp, sqlmap lokal terbatas, Nmap localhost saja, dampak, mitigasi, reset, fallback; susun alur basic-ke-deep.
+- [x] Tugas 7: Koreksi README dan tautkan runbook baru.
 
-### Checkpoint
-- [x] Smoke test lulus
-- [x] Server jalan dan halaman utama terbuka
+### Checkpoint — dokumentasi
+- [x] Semua command menyasar aplikasi yang tepat dan punya hasil yang diharapkan.
+- [x] Tidak ada instruksi scan terhadap hostname/IP Railway atau dump data akun.
+- [x] Runbook menjelaskan alur presentasi bertingkat dan akun dummy.
 
-## Risks and Mitigations
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Server rentan ini terekspos internet | Tinggi | Default bind 127.0.0.1, banner peringatan, README tegas |
-| Shell upload jadi RCE nyata | Tinggi | Output shell 100% palsu, tidak pernah eksekusi perintah |
-| Demo live gagal karena sesi hilang saat restart | Sedang | Cookie `user` fallback + login ulang cepat |
-| Data demo kotor setelah latihan | Rendah | Hapus `tokokita.db`, server seed ulang otomatis |
+### Fase 3 — Verifikasi rilis (hanya setelah persetujuan deploy)
+- [ ] Tugas 6: Verifikasi lokal penuh dan tinjau diff; siapkan state seed bersih.
+- [ ] Tugas 7: Jika pengguna memberi persetujuan deploy terpisah, deploy dan cek versi publik, batas lab, serta kebersihan data.
 
-## Open Questions
-- Tidak ada; stack mengikuti proyek (Python stdlib, tanpa build step).
+### Checkpoint — selesai
+- [ ] Tes lokal lulus dan semua kriteria spesifikasi terpenuhi.
+- [ ] Tidak ada deploy tanpa persetujuan eksplisit.
+- [ ] Jika deployment disetujui, state demo bersih dan endpoint lab terbatas.
+
+## Risiko dan mitigasi
+| Risiko | Dampak | Mitigasi |
+|---|---|---|
+| sqlmap menjangkau tabel akun/order | Kebocoran data | Endpoint terpisah, fixture khusus, tes memastikan tidak ada akses lintas tabel |
+| Pemindaian mengganggu layanan hosting | Gangguan layanan | Nmap hanya localhost; sqlmap request rendah ke satu route aplikasi |
+| Data uji tertinggal di deployment publik | Demo/privasi terganggu | Reset/redeploy terverifikasi; jangan menjalankan payload yang meninggalkan artefak tanpa cleanup |
+| Runbook memberi instruksi stale | Demo gagal | Verifikasi setiap langkah dengan backend saat ini dan expected result |
+
+## Pertanyaan terbuka
+- Tidak ada untuk rencana lokal. Deploy publik tetap membutuhkan persetujuan eksplisit terpisah.

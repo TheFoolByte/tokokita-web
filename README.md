@@ -1,8 +1,9 @@
 # TokoKita — Lab Web Rawan (demo serangan)
 
-> **PERINGATAN.** Aplikasi ini **sengaja dibuat rentan** untuk demo/latihan.
-> Jalankan hanya di laptop sendiri (`127.0.0.1`). Jangan di-deploy ke internet,
-> jangan pakai data asli, dan jangan pakai password yang kamu pakai di tempat lain.
+> **PERINGATAN.** Aplikasi ini **sengaja dibuat rentan** untuk demo/latihan berizin.
+> Jangan pakai data asli atau password yang digunakan di tempat lain. Instalasi lokal
+> default hanya bind ke `127.0.0.1`; deployment publik demo hanya untuk aplikasi
+> TokoKita dan tetap tidak boleh dipakai menyerang infrastruktur hosting/pihak lain.
 > Shell PHP di folder `uploads/` **hanya simulasi** — tidak ada perintah sistem
 > yang benar-benar dijalankan.
 
@@ -18,21 +19,24 @@ python3 server.py
 Buka <http://127.0.0.1:8000>. Tidak perlu install apa pun (Python 3.10+).
 
 - Ganti port: `python3 server.py --port 8080`
-- Demo dari dua laptop (Kamila buka dari perangkat lain):
-  `python3 server.py --host 0.0.0.0`, lalu akses `http://<IP-laptop-kamu>:8000`.
-  Hanya di jaringan yang kamu percaya.
-- Reset data demo: hapus `tokokita.db` dan isi `uploads/`, lalu jalankan ulang.
+- Demo dua laptop di jaringan privat milik tim saja: `python3 server.py --host 0.0.0.0`, lalu akses `http://<IP-laptop-kamu>:8000`. Jangan expose port ini ke jaringan publik.
+- Reset data demo lokal: hentikan server, hapus `tokokita.db`, `tokokita-lab.db` dan isi `uploads/`, lalu jalankan ulang.
 - Cek cepat semua celah: `python3 tests/smoke_test.py`
+- Panduan teknis presenter/penguji: [`docs/demo-runbook.md`](docs/demo-runbook.md)
+- Panduan non-teknis untuk Kamila: [`docs/panduan-kamila.md`](docs/panduan-kamila.md)
 
 Server mengirim header `Apache/2.4.41` + `X-Powered-By: PHP/7.4.3` supaya hasil
 `nmap`/`curl` konsisten dengan cerita "aplikasi PHP lama".
 
 ## Akun demo
 
-| Akun | Username | Password | Peran |
-| --- | --- | --- | --- |
-| Pemilik toko | `kamila` | `kamila123` | Admin — Dashboard Penjual |
-| Pembeli | `rohandhika` | `rohandhika123` | Pembeli (pesanan #101, #102) |
+| Peran | Username | Password |
+| --- | --- | --- |
+| Admin/pemilik | `kamila` | `kamila123` |
+| Pembeli utama | `rohandhika` | `rohandhika123` |
+| Pembeli dummy | `sari`, `jun`, `budi`, `maya`, `dimas`, `nina`, `raka`, `lila`, `fajar`, `dewi` | lihat [`docs/demo-runbook.md`](docs/demo-runbook.md) |
+
+Semua 12 akun/credential adalah fixture demo sintetis; jangan pakai password ini di layanan lain.
 
 Pesanan seed: `#101`, `#102` (Rohandhika), `#201` (Kamila), `#202`, `#203` (Sari Dewi).
 
@@ -129,6 +133,14 @@ Muncul tampilan shell dengan output palsu (`www-data`, `ls`, `cat .env`, dst.).
 Semua output di-hardcode di `SHELL_OUTPUTS` pada `server.py`; tidak ada
 `os.system`/`exec`.
 
+### 6. SQL injection — katalog fixture khusus sqlmap
+
+Endpoint `GET /api/lab/search?category=electronics` sengaja rentan, tetapi memakai
+file DB terpisah `tokokita-lab.db` yang hanya berisi empat produk dummy. Endpoint
+hanya menjalankan `SELECT`, membatasi hasil, serta membatasi input 4096 karakter;
+ia tidak mengakses akun, pesanan, ulasan, atau data penjual. Untuk langkah uji lokal yang dibatasi, lihat
+[`docs/demo-runbook.md`](docs/demo-runbook.md). Jangan gunakan opsi dump atau shell.
+
 ## Endpoint backend
 
 | Method | Path | Keterangan |
@@ -144,6 +156,7 @@ Semua output di-hardcode di `SHELL_OUTPUTS` pada `server.py`; tidak ada
 | GET | `/api/orders/<id>` | **IDOR** |
 | GET | `/api/seller/summary` | admin: semua pesanan + nama toko |
 | GET | `/api/prices` | harga override dari penjual |
+| GET | `/api/lab/search?category=...` | **SQLi lab**, DB fixture terpisah |
 | POST | `/api/seller/price` | admin: ubah harga produk (persist) |
 | POST | `/api/seller/store` | admin: ubah nama toko |
 | POST | `/api/seller/reset` | admin: pulihkan data seed |

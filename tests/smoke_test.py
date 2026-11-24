@@ -10,6 +10,7 @@ import http.cookiejar
 import json
 import os
 import shutil
+import sqlite3
 import subprocess
 import sys
 import tempfile
@@ -48,6 +49,7 @@ def check(name, cond, detail=""):
 
 def main():
     env = dict(os.environ, TOKOKITA_DB=os.path.join(TMP, "test.db"),
+               TOKOKITA_LAB_DB=os.path.join(TMP, "lab.db"),
                TOKOKITA_UPLOADS=os.path.join(TMP, "uploads"))
     proc = subprocess.Popen(
         [sys.executable, os.path.join(ROOT, "server.py"), "--port", str(PORT)],
@@ -63,10 +65,42 @@ def main():
         else:
             raise SystemExit("server tidak mau start")
 
+        # Fixture akun sintetis bertambah; tiap akun seeded idempotently.
+        conn = sqlite3.connect(env["TOKOKITA_DB"])
+        try:
+            seeded_users = {row[0] for row in conn.execute("SELECT username FROM users")}
+            check("12 akun demo tersedia", {"kamila", "rohandhika", "sari", "jun", "budi", "maya", "dimas", "nina", "raka", "lila", "fajar", "dewi"} <= seeded_users, seeded_users)
+        finally:
+            conn.close()
+
         # 1. SQLi bypass login: password apa pun, username ' OR '1'='1
         status, raw, headers = req("/api/login", {"identifier": "' OR '1'='1", "password": "apa-saja"})
         user = json.loads(raw).get("user") or {}
         check("SQLi login jadi admin", status == 200 and user.get("role") == "admin", raw)
+
+        # SQLi lab terisolasi hanya mengekspos fixture sintetis.
+        from urllib.parse import quote
+        lab_path = "/api/lab/search?category="
+        status, raw, _ = req(lab_path + quote("electronics' OR '1'='1' -- "))
+        products = json.loads(raw).get("products", [])
+        check("SQLi lab mengembalikan fixture sintetis", status == 200 and len(products) == 4 and all(p.get("id") in (1, 2, 3, 4) for p in products), raw[:300])
+        status, raw, _ = req(lab_path + quote("electronics"))
+        check("SQLi lab pencarian normal", status == 200 and len(json.loads(raw).get("products", [])) == 2, raw[:300])
+        status, raw, _ = req(lab_path + "x" * 4097)
+        check("SQLi lab menolak input di atas batas 4096", status == 400, (status, raw[:200]))
+        conn = sqlite3.connect(env["TOKOKITA_DB"])
+        lab_conn = sqlite3.connect(env["TOKOKITA_LAB_DB"])
+        try:
+            table_names = {row[0] for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+            lab_tables = {row[0] for row in lab_conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+            check("fixture SQLi terpisah dari DB toko", "lab_products" not in table_names and {"users", "orders", "reviews"} <= table_names and lab_tables == {"lab_products"}, (table_names, lab_tables))
+            counts_before = tuple(conn.execute("SELECT (SELECT COUNT(*) FROM users), (SELECT COUNT(*) FROM orders), (SELECT COUNT(*) FROM reviews)").fetchone())
+            lab_conn.execute("SELECT id FROM lab_products WHERE category = 'electronics' OR 1=1")
+            counts_after = tuple(conn.execute("SELECT (SELECT COUNT(*) FROM users), (SELECT COUNT(*) FROM orders), (SELECT COUNT(*) FROM reviews)").fetchone())
+            check("uji lab tidak mengubah data toko", counts_before == counts_after, (counts_before, counts_after))
+        finally:
+            conn.close()
+            lab_conn.close()
 
         # 2. Cookie sesi tidak HttpOnly (bisa dicuri XSS)
         cookies = headers.get_all("Set-Cookie") or []
@@ -110,10 +144,14 @@ def main():
         status, raw, _ = req("/api/reviews?pid=1")
         check("ulasan XSS tersimpan mentah", payload in raw.decode(), raw[:200])
 
-        # 6. Collector XSS menampung cookie
+        # 6. Collector hanya menerima cookie akun admin demo Kamila
+        status, _, _ = req("/api/collect?c=PHPSESSID%3Dbudi%3B%20user%3Drohandhika")
+        check("collector menolak cookie pembeli", status == 404, status)
         req("/api/collect?c=PHPSESSID%3Dbudi%3B%20user%3Dkamila")
         status, raw, _ = req("/collector")
-        check("collector menerima cookie", b"user%3Dkamila" in raw or b"user=kamila" in raw, raw[:200])
+        check("collector menerima cookie admin demo", b"user=kamila" in raw, raw[:200])
+        status, _, _ = req("/api/collect?c=" + "x" * 1025)
+        check("collector menolak cookie terlalu panjang", status == 404, status)
 
         # 7. Upload file .php + shell simulasi
         req("/api/upload?name=shell.php", raw=b"<?php echo 'asli'; ?>")

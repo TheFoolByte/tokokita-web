@@ -33,6 +33,28 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 ROOT = os.path.dirname(os.path.abspath(__file__))
 UPLOADS = os.environ.get("TOKOKITA_UPLOADS", os.path.join(ROOT, "uploads"))
 DB = os.environ.get("TOKOKITA_DB", os.path.join(ROOT, "tokokita.db"))
+LAB_DB = os.environ.get("TOKOKITA_LAB_DB", os.path.join(ROOT, "tokokita-lab.db"))
+SEED_USERS = [
+    ("kamila", "kamila123", "admin", "Kamila", "kamila@tokokita.id"),
+    ("rohandhika", "rohandhika123", "user", "Rohandhika", "rohandhika@tokokita.id"),
+    ("sari", "sari123", "user", "Sari Dewi", "sari@tokokita.id"),
+    ("jun", "jun12345", "user", "Jun Pratama", "jun@tokokita.id"),
+    ("budi", "budi12345", "user", "Budi Santoso", "budi@tokokita.id"),
+    ("maya", "maya12345", "user", "Maya Putri", "maya@tokokita.id"),
+    ("dimas", "dimas12345", "user", "Dimas Saputra", "dimas@tokokita.id"),
+    ("nina", "nina12345", "user", "Nina Permata", "nina@tokokita.id"),
+    ("raka", "raka12345", "user", "Raka Wijaya", "raka@tokokita.id"),
+    ("lila", "lila12345", "user", "Lila Ananda", "lila@tokokita.id"),
+    ("fajar", "fajar12345", "user", "Fajar Maulana", "fajar@tokokita.id"),
+    ("dewi", "dewi12345", "user", "Dewi Lestari", "dewi@tokokita.id"),
+]
+
+LAB_PRODUCTS = [
+    (1, "Demo Laptop A", "electronics", "Fixture sintetis untuk latihan SQLi."),
+    (2, "Demo Mouse B", "electronics", "Fixture sintetis untuk latihan SQLi."),
+    (3, "Demo Book C", "books", "Fixture sintetis untuk latihan SQLi."),
+    (4, "Demo Mug D", "home", "Fixture sintetis untuk latihan SQLi."),
+]
 
 SESSIONS = {}   # token -> username
 STOLEN = []     # cookie hasil XSS, untuk halaman /collector
@@ -73,6 +95,29 @@ def db():
     conn = sqlite3.connect(DB)
     conn.row_factory = sqlite3.Row
     return conn
+
+
+def lab_db(readonly=False):
+    conn = sqlite3.connect(LAB_DB)
+    conn.row_factory = sqlite3.Row
+    if readonly:
+        conn.execute("PRAGMA query_only = ON")
+        conn.set_progress_handler(lambda: 1, 100000)
+    return conn
+
+
+def init_lab_db():
+    conn = lab_db()
+    try:
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS lab_products "
+            "(id INTEGER PRIMARY KEY, name TEXT, category TEXT, description TEXT)"
+        )
+        if not conn.execute("SELECT 1 FROM lab_products LIMIT 1").fetchone():
+            conn.executemany("INSERT INTO lab_products VALUES (?,?,?,?)", LAB_PRODUCTS)
+        conn.commit()
+    finally:
+        conn.close()
 
 
 def get_setting(conn, key, default=""):
@@ -120,14 +165,10 @@ def init_db():
             );
             """
         )
-        if not conn.execute("SELECT 1 FROM users LIMIT 1").fetchone():
-            conn.executemany(
-                "INSERT INTO users(username, password, role, label, email) VALUES (?,?,?,?,?)",
-                [
-                    ("kamila", "kamila123", "admin", "Kamila", "kamila@tokokita.id"),
-                    ("rohandhika", "rohandhika123", "user", "Rohandhika", "rohandhika@tokokita.id"),
-                ],
-            )
+        conn.executemany(
+            "INSERT OR IGNORE INTO users(username, password, role, label, email) VALUES (?,?,?,?,?)",
+            SEED_USERS,
+        )
         if not conn.execute("SELECT 1 FROM orders LIMIT 1").fetchone():
             conn.executemany(
                 "INSERT INTO orders VALUES (?,?,?,?,?,?,?,?)", SEED_ORDERS
@@ -241,6 +282,23 @@ class Handler(SimpleHTTPRequestHandler):
         if path == "/api/me":
             return self.send_json({"user": self.current_user()})
 
+        if path == "/api/lab/search":
+            category = (query.get("category") or [""])[0]
+            if not category or len(category) > 4096:
+                return self.send_json({"error": "Kategori wajib diisi (maksimal 4096 karakter)."}, 400)
+            conn = lab_db(readonly=True)
+            try:
+                # SENGAJA RENTAN: khusus fixture sintetis, hanya SELECT dan hasil dibatasi.
+                rows = conn.execute(
+                    "SELECT id, name, category, description FROM lab_products "
+                    "WHERE category = '%s' LIMIT 10" % category
+                ).fetchall()
+            except sqlite3.Error:
+                return self.send_json({"error": "Query lab tidak valid."}, 400)
+            finally:
+                conn.close()
+            return self.send_json({"products": [dict(row) for row in rows]})
+
         if path == "/api/reviews":
             pid = int((query.get("pid") or ["1"])[0])
             conn = db()
@@ -307,6 +365,8 @@ class Handler(SimpleHTTPRequestHandler):
         if path == "/api/collect":
             # Endpoint "laptop penyerang": menampung cookie dari payload XSS.
             cookie = (query.get("c") or [""])[0]
+            if "user=kamila" not in [part.strip() for part in cookie.split(";")] or len(cookie) > 1024:
+                return self.send_error(404)
             if cookie and len(STOLEN) < 50:
                 STOLEN.append({
                     "cookie": cookie,
@@ -599,15 +659,14 @@ def collector_page():
         "<tr><td>%s</td><td>%s</td><td><code>%s</code></td></tr>"
         % (html.escape(s["time"]), html.escape(s["ip"]), html.escape(s["cookie"]))
         for s in reversed(STOLEN)
-    ) or '<tr><td colspan="3">Belum ada cookie masuk. Tunggu korban membuka ulasan.</td></tr>'
+    ) or '<tr><td colspan="3">Belum ada cookie admin demo Kamila yang masuk.</td></tr>'
     return """<!doctype html><html><head><meta charset="utf-8">
 <title>Collector — cookie masuk</title>
 <style>body{background:#111;color:#eee;font:14px/1.6 system-ui;padding:24px;max-width:900px;margin:auto}
 table{width:100%%;border-collapse:collapse}td,th{border-bottom:1px solid #333;padding:10px;text-align:left;vertical-align:top}
 code{color:#7dff9b;word-break:break-all}h1{font-size:20px}</style></head><body>
 <h1>Collector — cookie masuk</h1>
-<p>Halaman ini berperan sebagai "laptop penyerang". Tempel nilai cookie yang masuk
-ke DevTools browser (Application / Storage → Cookies) lalu reload TokoKita.</p>
+<p>Demo internal terkontrol: hanya cookie akun admin dummy Kamila (user=kamila) yang diterima. Jangan pakai token sesi nyata atau akun pengunjung.</p>
 <table><tr><th>Jam</th><th>IP</th><th>Cookie</th></tr>%s</table>
 <p><a style="color:#7dff9b" href="/">&larr; balik ke toko</a> ·
 <a style="color:#7dff9b" href="/collector">refresh</a></p>
@@ -622,6 +681,7 @@ def main():
 
     os.makedirs(UPLOADS, exist_ok=True)
     init_db()
+    init_lab_db()
 
     print("=" * 62)
     print("  TokoKita — LAB RENTAN. Hanya untuk latihan/demo lokal.")
