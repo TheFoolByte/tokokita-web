@@ -23,7 +23,7 @@ Buka <http://127.0.0.1:8000>. Tidak perlu install apa pun (Python 3.10+).
 - Reset data demo lokal: hentikan server, hapus `tokokita.db`, `tokokita-lab.db` dan isi `uploads/`, lalu jalankan ulang.
 - Cek cepat semua celah: `python3 tests/smoke_test.py`
 - Panduan teknis presenter/penguji: [`docs/demo-runbook.md`](docs/demo-runbook.md)
-- Panduan non-teknis untuk Kamila: [`docs/panduan-kamila.md`](docs/runbook.md)
+- Panduan non-teknis untuk Kamila: [`docs/runbook.md`](docs/runbook.md)
 
 Server mengirim header `Apache/2.4.41` + `X-Powered-By: PHP/7.4.3` supaya hasil
 `nmap`/`curl` konsisten dengan cerita "aplikasi PHP lama".
