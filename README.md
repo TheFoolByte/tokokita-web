@@ -1,5 +1,9 @@
 # TokoKita — Lab Web Rawan (demo serangan)
 
+<p align="center">
+  <img src="preview.png" alt="TokoKita Screenshot" width="800">
+</p>
+
 > **PERINGATAN.** Aplikasi ini **sengaja dibuat rentan** untuk demo/latihan berizin.
 > Jangan pakai data asli atau password yang digunakan di tempat lain. Instalasi lokal
 > default hanya bind ke `127.0.0.1`; deployment publik demo hanya untuk aplikasi
