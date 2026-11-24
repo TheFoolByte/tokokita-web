@@ -1,6 +1,6 @@
-# Runbook TokoKita — Panduan Demo untuk Kamila (Edisi Lengkap)
+# Runbook TokoKita — Panduan Demo untuk Kamu (Edisi Lengkap)
 
-> **Dokumen ini dibuat khusus untuk Kamila, pemeran pemilik toko.**
+> **Dokumen ini dibuat khusus untuk Kamu, pemeran pemilik toko.**
 > Kamu tidak perlu punya latar belakang keamanan siber. Dokumen ini menjelaskan proyek TokoKita **dari ujung ke ujung, selengkap mungkin**: apa itu TokoKita, bagaimana cara kerjanya di dalam, siapa saja akunnya, data apa saja yang ada, celah apa saja yang sengaja dibuat, bagaimana tiap adegan demo dijalankan langkah demi langkah, alat apa yang dipakai dan kenapa, apa risikonya, dan apa yang harus dilakukan sebelum, selama, dan sesudah presentasi.
 >
 > Kalau ada istilah yang belum paham, cari di Bagian 3 (Istilah). Kalau ada angka atau urutan yang berbeda di dokumen lain, yang berlaku adalah dokumen ini.
@@ -10,9 +10,9 @@
 | **6 kategori** | SQL Injection, Stored XSS, Sesi Lemah, Harga dari Client, IDOR, Upload |
 | **7 adegan** | SQL Injection tampil dua kali: login dan lab sqlmap |
 | **12 menit** | Durasi rundown resmi, dari pembuka sampai reset |
-| **12 akun demo** | 1 admin (Kamila) + 11 pembeli |
+| **12 akun demo** | 1 admin (Kamu) + 11 pembeli |
 | **42 produk katalog** | 8 kategori, harga dan stok ada di browser |
-| **5 pesanan seed** | #101, #102 (Rohandhika), #201 (Kamila), #202, #203 (Sari) |
+| **5 pesanan seed** | #101, #102 (Rohandhika), #201 (Kamu), #202, #203 (Sari) |
 | **4 produk lab** | Hanya untuk latihan sqlmap, di database terpisah |
 
 > [!WARNING]
@@ -22,7 +22,7 @@
 
 ## Baca ini sebelum demo — yang paling penting
 
-**TokoKita adalah aplikasi latihan yang sengaja dibuat rentan.** Artinya, Jun (yang membuat proyek ini) sengaja menulis kode yang salah di beberapa tempat, supaya di presentasi bisa ditunjukkan: "lihat, kalau kode ditulis begini, ini yang bisa terjadi". Ini bukan aplikasi toko sungguhan, dan bukan aplikasi yang sudah dibobol orang lain. Semua kelemahannya sudah diketahui sejak awal, sudah direncanakan, dan hanya boleh ditunjukkan dalam presentasi yang sudah disepakati.
+**TokoKita adalah aplikasi latihan yang sengaja dibuat rentan.** Artinya, Pelaku (yang membuat proyek ini) sengaja menulis kode yang salah di beberapa tempat, supaya di presentasi bisa ditunjukkan: "lihat, kalau kode ditulis begini, ini yang bisa terjadi". Ini bukan aplikasi toko sungguhan, dan bukan aplikasi yang sudah dibobol orang lain. Semua kelemahannya sudah diketahui sejak awal, sudah direncanakan, dan hanya boleh ditunjukkan dalam presentasi yang sudah disepakati.
 
 **Pengujian hanya boleh menyasar aplikasi TokoKita yang menjadi target demo.**
 
@@ -35,13 +35,13 @@
 
 **Peran di panggung:**
 
-- **Kamila** — pemilik TokoKita. Kamu berperan sebagai pemilik toko yang mengira alur toko berjalan normal. Kamu tidak perlu mengetik payload, tidak perlu mengoperasikan Burp, sqlmap, atau Nmap. Tugasmu: menunjukkan sisi pemilik (login, lihat dashboard, buka halaman produk), bereaksi dengan kata-katamu sendiri atas apa yang ditunjukkan Jun, dan berkata "stop" kapan saja kalau ada yang terasa tidak aman.
-- **Jun** — penguji yang mendapat izin dari pemilik. Jun yang mengoperasikan semua alat pengujian, mengetik payload, dan menunjukkan request/response. Jun yang membuat proyek ini, jadi Jun yang paling paham isi kodenya.
-- **Audiens** — melihat dua laptop/proyektor: Kamila menunjukkan sisi pemilik; Jun menunjukkan bagaimana request aplikasi dapat diuji.
+- **Kamu** — pemilik TokoKita. Kamu berperan sebagai pemilik toko yang mengira alur toko berjalan normal. Kamu tidak perlu mengetik payload, tidak perlu mengoperasikan Burp, sqlmap, atau Nmap. Tugasmu: menunjukkan sisi pemilik (login, lihat dashboard, buka halaman produk), bereaksi dengan kata-katamu sendiri atas apa yang ditunjukkan Pelaku, dan berkata "stop" kapan saja kalau ada yang terasa tidak aman.
+- **Pelaku** — penguji yang mendapat izin dari pemilik. Pelaku yang mengoperasikan semua alat pengujian, mengetik payload, dan menunjukkan request/response. Pelaku yang membuat proyek ini, jadi Pelaku yang paling paham isi kodenya.
+- **Audiens** — melihat dua laptop/proyektor: Kamu menunjukkan sisi pemilik; Pelaku menunjukkan bagaimana request aplikasi dapat diuji.
 
 Kalimat pembuka yang bisa digunakan:
 
-> "Saya Kamila, pemilik TokoKita. Jun menguji aplikasi demo ini dengan izin saya. Semua akun dan data dibuat khusus untuk latihan. Pengujian hanya mencakup aplikasi TokoKita, bukan layanan hosting atau sistem lain."
+> "Saya pemilik TokoKita. Pelaku menguji aplikasi demo ini dengan izin saya. Semua akun dan data dibuat khusus untuk latihan. Pengujian hanya mencakup aplikasi TokoKita, bukan layanan hosting atau sistem lain."
 
 ---
 
@@ -102,8 +102,8 @@ tokokita-web/
 ├── server.py                  # Backend: API, sesi, database, static files, skenario rentan
 ├── tests/smoke_test.py         # Tes otomatis semua celah demo
 ├── docs/
-│   ├── runbook.md             # Dokumen ini — panduan untuk Kamila
-│   └── demo-runbook.md        # Panduan teknis untuk Jun (Burp, sqlmap, Nmap, langkah detail)
+│   ├── runbook.md             # Dokumen ini — panduan untuk Kamu
+│   └── demo-runbook.md        # Panduan teknis untuk Pelaku (Burp, sqlmap, Nmap, langkah detail)
 ├── README.md                  # Ringkasan aplikasi dan cara menjalankan
 ├── SPEC-public-pentest-demo.md # Spesifikasi demo: tujuan, cakupan, batas keamanan, kriteria sukses
 ├── CAPABILITY-MAP.md          # Peta modul: sqlmap-lab, burp-lab, nmap-scope, demo-guide
@@ -115,7 +115,7 @@ tokokita-web/
 └── uploads/                   # Hasil unggahan (dibuat otomatis saat server jalan)
 ```
 
-Penjelasan per bagian, supaya Kamila paham mana yang apa:
+Penjelasan per bagian, supaya Kamu paham mana yang apa:
 
 - **`index.html`, `pages/`, `css/`, `assets/`** — semua yang dilihat pengunjung: halaman dan tampilan toko. Tidak ada logika keamanan di sini; halaman hanya menampilkan apa yang dikirim server dan apa yang ada di `js/data.js`.
 - **`js/data.js`** — katalog produk ada di sini, di browser (bukan di server). Ada 42 produk dan 8 kategori: Semua, Elektronik, Fashion, Rumah, Olahraga, Aksesoris, Kecantikan, Dapur. Enam produk pertama punya foto asli (`assets/product-1.jpg` sampai `product-6.jpg`); sisanya memakai ilustrasi SVG. Setiap produk punya id, nama, toko, kota, harga, harga coret, jumlah terjual, rating, dan stok. Penting: karena katalog ada di browser, harga yang tampil di halaman **bukan** harga yang dipercaya server — dan di situlah celah harga checkout berasal (lihat Bagian 5, Kategori 3). Keranjang belanja juga disimpan di browser (`localStorage`, kunci `tokokita_cart`), bukan di server.
@@ -125,11 +125,11 @@ Penjelasan per bagian, supaya Kamila paham mana yang apa:
   - Checkout mengambil harga dari hidden input `priceField<id>` di halaman dan mengirimkannya ke server (`doCheckout`). Inilah yang membuat harga bisa diubah dari browser.
 - **`server.py`** — otak toko. Satu file Python (±800 baris) yang berisi: semua API (`/api/login`, `/api/checkout`, `/api/orders/...`, dan lain-lain), manajemen sesi, pembuatan dan pengisian database, penyajian file statis, dan semua skenario rentan yang sengaja dibuat. Setiap celah di file ini diberi komentar `SENGAJA` di kodenya, supaya jelas itu disengaja, bukan ketidaksengajaan. Server juga mengirim header palsu `Apache/2.4.41` dan `X-Powered-By: PHP/7.4.3` supaya hasil `nmap`/`curl` terlihat seperti aplikasi PHP lama — padahal backend sebenarnya Python stdlib. Ini banner simulasi, bukan bukti stack aslinya.
 - **`tokokita.db` dan `tokokita-lab.db`** — database SQLite yang dibuat otomatis saat server pertama kali jalan (fungsi `init_db` dan `init_lab_db` di `server.py`). File-file ini tidak di-commit ke Git (ada di `.gitignore`); yang di-commit hanya kodenya, dan datanya dibuat ulang dari seed di `server.py` setiap kali database dihapus dan server dijalankan ulang.
-- **`tests/smoke_test.py`** — tes otomatis. Menyalakan server di port 8765 dengan database sementara, lalu memeriksa: 12 akun demo tersedia; SQLi login menjadi admin; SQLi lab mengembalikan 4 fixture dan menolak input di atas 4096 karakter; cookie `PHPSESSID` tanpa `HttpOnly`; IDOR pesanan #201 milik Kamila bisa dibaca akun Rohandhika; checkout harga client total Rp100; penjual bisa ubah harga dan pembeli tidak bisa (403); reset mengembalikan harga; ulasan XSS tersimpan mentah; collector menolak cookie pembeli dan menerima cookie admin demo, menolak cookie terlalu panjang; upload `.php` diterima dan shell hanya simulasi; halaman utama tersaji; `server.py` dan file `.db` tidak ikut tersaji (404).
+- **`tests/smoke_test.py`** — tes otomatis. Menyalakan server di port 8765 dengan database sementara, lalu memeriksa: 12 akun demo tersedia; SQLi login menjadi admin; SQLi lab mengembalikan 4 fixture dan menolak input di atas 4096 karakter; cookie `PHPSESSID` tanpa `HttpOnly`; IDOR pesanan #201 milik Kamu bisa dibaca akun Rohandhika; checkout harga client total Rp100; penjual bisa ubah harga dan pembeli tidak bisa (403); reset mengembalikan harga; ulasan XSS tersimpan mentah; collector menolak cookie pembeli dan menerima cookie admin demo, menolak cookie terlalu panjang; upload `.php` diterima dan shell hanya simulasi; halaman utama tersaji; `server.py` dan file `.db` tidak ikut tersaji (404).
 
 ### 1.4 Cara kerja dari hulu ke hilir (alur satu request)
 
-Bayangkan Kamila membuka toko di browser. Ini yang terjadi, langkah demi langkah:
+Bayangkan Kamu membuka toko di browser. Ini yang terjadi, langkah demi langkah:
 
 1. Pengguna membuka halaman HTML toko (`index.html` atau salah satu halaman di `pages/`).
 2. Browser memuat CSS (`css/style.css`), JavaScript (`js/data.js`, `js/auth.js`, `js/app.js`), dan gambar produk (`assets/`).
@@ -155,13 +155,13 @@ Pelajaran besar dari seluruh demo, yang akan diulang di penutup presentasi: **ke
 
 ## 2. Di dalam server — database, sesi, dan semua endpoint
 
-Bagian ini menjelaskan isi perut TokoKita. Kamila tidak perlu menghafalnya, tapi kalau audiens bertanya "datanya disimpan di mana?" atau "sesi itu apa?", jawabannya ada di sini.
+Bagian ini menjelaskan isi perut TokoKita. Kamu tidak perlu menghafalnya, tapi kalau audiens bertanya "datanya disimpan di mana?" atau "sesi itu apa?", jawabannya ada di sini.
 
 ### 2.1 Tabel database utama (`tokokita.db`)
 
 | Tabel | Kolom | Isi |
 | --- | --- | --- |
-| `users` | id, username, password, role, label, email | 12 akun seed. Password disimpan **plaintext** (apa adanya, tanpa hashing) — lihat temuan audit di Bagian 6. `role` hanya `admin` (Kamila) atau `user` (11 pembeli). |
+| `users` | id, username, password, role, label, email | 12 akun seed. Password disimpan **plaintext** (apa adanya, tanpa hashing) — lihat temuan audit di Bagian 6. `role` hanya `admin` (Kamu) atau `user` (11 pembeli). |
 | `orders` | id, owner, item, total, name, addr, phone, status | 5 pesanan seed (lihat Bagian 4) + pesanan baru dari checkout (id mulai 301). |
 | `reviews` | id, pid, author, text, created | Ulasan per produk. Seed: 2 ulasan untuk produk 1. Teks disimpan mentah, tanpa escape. |
 | `settings` | key, value | Satu baris: `store_name` = "TokoKita Official Store". Bisa diubah admin lewat dashboard. |
@@ -182,12 +182,12 @@ Server mengirim dua cookie ke browser:
 | Cookie | Isi | Perlindungan |
 | --- | --- | --- |
 | `PHPSESSID` | Token sesi acak | **Sengaja tanpa `HttpOnly`** — JavaScript di halaman bisa membacanya. Inilah yang membuat pencurian cookie lewat XSS bisa terjadi. |
-| `user` | Username, misalnya `kamila` | Tanpa perlindungan apa pun, dan — ini yang paling penting — **dipercaya begitu saja sebagai identitas**. |
+| `user` | Username, misalnya `[username-admin]` | Tanpa perlindungan apa pun, dan — ini yang paling penting — **dipercaya begitu saja sebagai identitas**. |
 
 Cara server menentukan siapa yang sedang login (`current_user` di `server.py`):
 
 1. Baca cookie `PHPSESSID`, cari token itu di `SESSIONS`. Kalau ketemu, itulah usernamenya.
-2. Kalau tidak ketemu, baca cookie `user` dan **percaya begitu saja** — tanpa memeriksa token apa pun. Jadi siapa pun yang menulis `user=kamila` di cookienya langsung dianggap Kamila, admin, tanpa password, tanpa XSS, tanpa mencuri apa pun. Ini temuan audit B di Bagian 6, dan ini lebih parah daripada pencurian cookie lewat XSS.
+2. Kalau tidak ketemu, baca cookie `user` dan **percaya begitu saja** — tanpa memeriksa token apa pun. Jadi siapa pun yang menulis `user=[username-admin]` di cookienya langsung dianggap Kamu, admin, tanpa password, tanpa XSS, tanpa mencuri apa pun. Ini temuan audit B di Bagian 6, dan ini lebih parah daripada pencurian cookie lewat XSS.
 3. Kalau dua-duanya tidak ada, pengguna dianggap belum login.
 
 Logout menghapus token dari `SESSIONS` dan mengosongkan kedua cookie.
@@ -196,7 +196,7 @@ Selain itu, server juga mengirim header `X-Robots-Tag: noindex, nofollow` di set
 
 ### 2.3 Semua endpoint — daftar lengkap
 
-Ini daftar semua alamat (route) di aplikasi, supaya Kamila tahu persis apa yang ada dan mana yang rentan. "Endpoint" artinya satu alamat yang melakukan satu pekerjaan.
+Ini daftar semua alamat (route) di aplikasi, supaya Kamu tahu persis apa yang ada dan mana yang rentan. "Endpoint" artinya satu alamat yang melakukan satu pekerjaan.
 
 | Method | Path | Keterangan | Perlu login? | Rentan? |
 | --- | --- | --- | --- | --- |
@@ -217,7 +217,7 @@ Ini daftar semua alamat (route) di aplikasi, supaya Kamila tahu persis apa yang 
 | POST | `/api/upload?name=...` | Unggah file | **Tidak** | **Ya — tanpa validasi** (Kategori 6) |
 | GET | `/uploads/<nama-file>` | Ambil file yang diunggah; kalau `.php`, tampilkan shell simulasi | Tidak | Simulasi, bukan RCE |
 | GET | `/api/lab/search?category=...` | Cari produk lab (sqlmap) | Tidak | **Ya — SQLi lab** (Kategori 1, adegan kedua) |
-| GET | `/api/collect?c=...` | Penampung cookie XSS (balik GIF 1×1) | Tidak | Hanya terima `user=kamila`, maks 1024 karakter, maks 50 entri |
+| GET | `/api/collect?c=...` | Penampung cookie XSS (balik GIF 1×1) | Tidak | Hanya terima `user=[username-admin]`, maks 1024 karakter, maks 50 entri |
 | GET | `/collector` | Halaman "laptop penyerang": daftar cookie yang masuk | Tidak | Menampilkan cookie dengan escape HTML |
 
 Yang **tidak** disajikan server (sengaja diblokir, 404):
@@ -247,12 +247,12 @@ Yang **tidak** disajikan server (sengaja diblokir, 404):
 | Istilah | Penjelasan sederhana | Contoh di TokoKita |
 | --- | --- | --- |
 | Browser / client | Aplikasi di laptop pengguna (Chrome, Firefox). Ia mengirim halaman, formulir, harga, dan request ke server. Apa pun yang ada di browser bisa diubah pengguna. | Harga di hidden input checkout bisa diubah lewat DevTools. |
-| Server | Program yang menerima request dan menentukan jawaban. Keputusan penting seharusnya dilakukan di sini. | `server.py` (Python) yang berjalan di laptop Jun atau di Railway. |
-| Request | Pesan yang dikirim browser ke server, misalnya "login" atau "buat pesanan". Isinya: method (GET/POST), alamat (path), header, cookie, dan body (data). | `POST /api/login` dengan body `{"identifier": "kamila", "password": "..."}`. |
-| Response | Jawaban server: halaman, status HTTP, atau data JSON. | `{"ok": true, "user": {"username": "kamila", "role": "admin"}}`. |
+| Server | Program yang menerima request dan menentukan jawaban. Keputusan penting seharusnya dilakukan di sini. | `server.py` (Python) yang berjalan di laptop Pelaku atau di Railway. |
+| Request | Pesan yang dikirim browser ke server, misalnya "login" atau "buat pesanan". Isinya: method (GET/POST), alamat (path), header, cookie, dan body (data). | `POST /api/login` dengan body `{"identifier": "[username-admin]", "password": "..."}`. |
+| Response | Jawaban server: halaman, status HTTP, atau data JSON. | `{"ok": true, "user": {"username": "[username-admin]", "role": "admin"}}`. |
 | Database | Tempat server menyimpan akun, pesanan, ulasan, dan pengaturan. | SQLite `tokokita.db` dan `tokokita-lab.db`. |
 | Tabel | Bagian di dalam database, seperti lembar di spreadsheet. | Tabel `users`, `orders`, `reviews`. |
-| Query / SQL | Pertanyaan yang diajukan program ke database, ditulis dalam bahasa SQL. | `SELECT username FROM users WHERE username = 'kamila'`. |
+| Query / SQL | Pertanyaan yang diajukan program ke database, ditulis dalam bahasa SQL. | `SELECT username FROM users WHERE username = '[username-admin]'`. |
 | Cookie | Nilai kecil yang browser kirim kembali ke situs untuk mengenali sesi login. Perlakukan token sesi seperti kunci sementara. | `PHPSESSID` (token sesi) dan `user` (username). |
 | Sesi | Keadaan "sudah login" yang diingat server lewat token. | Token di `SESSIONS` (memori server); restart server = login ulang. |
 | Payload | Input uji yang sengaja dibuat untuk menunjukkan apakah aplikasi menangani masukan dengan aman. | `' OR '1'='1` di kolom username. |
@@ -260,7 +260,7 @@ Yang **tidak** disajikan server (sengaja diblokir, 404):
 | Fixture | Data contoh yang disiapkan khusus untuk latihan, bukan data pengguna sungguhan. | 12 akun, 5 pesanan, 4 produk lab. |
 | Reset | Memulihkan sebagian data toko ke kondisi seed awal. Tidak semua reset menghapus file upload. | `POST /api/seller/reset` (lihat Bagian 10). |
 | Seed | Data awal yang dimasukkan otomatis saat database dibuat. | 12 akun, 5 pesanan, 2 ulasan, nama toko awal. |
-| Burp Suite | Alat untuk melihat, menangkap, mengubah, dan mengulang request HTTP. Tab Repeater mengulang satu request dengan perubahan kecil. | Dipakai Jun untuk SQLi login dan ubah harga checkout. |
+| Burp Suite | Alat untuk melihat, menangkap, mengubah, dan mengulang request HTTP. Tab Repeater mengulang satu request dengan perubahan kecil. | Dipakai Pelaku untuk SQLi login dan ubah harga checkout. |
 | sqlmap | Alat otomatis yang memeriksa apakah satu parameter rentan SQL injection, dengan mengirim banyak request uji. | Hanya untuk `/api/lab/search`, hanya lokal. |
 | Nmap | Alat untuk mengenali service/port yang terbuka di satu komputer. | Hanya `nmap -sV -p 8000 127.0.0.1` (laptop sendiri). |
 | DevTools | Perkakas bawaan browser (F12) untuk melihat HTML, nilai form, cookie, dan traffic jaringan. | Mengubah `priceField1` menjadi 100. |
@@ -296,12 +296,14 @@ Bar merah pada Railway logs tidak otomatis berarti error; lihat status HTTP dan 
 
 Semua akun adalah sintetis (buatan, bukan orang sungguhan). Password hanya untuk lab — jangan gunakan di email, akun pribadi, atau layanan lain.
 
+> **Catatan:** di dokumen ini, username dan password persisnya ditulis sebagai `[username-admin]`, `[password-admin]`, `[username-pelaku]`, dan `[password-pelaku]` — nilai persis yang dipakai saat demo ada di `server.py` bagian `SEED_USERS` dan di `docs/demo-runbook.md`.
+
 | # | Username | Password | Role | Nama label | Email |
 | ---: | --- | --- | --- | --- | --- |
-| 1 | `kamila` | `kamila123` | admin | Kamila | kamila@tokokita.id |
+| 1 | `[username-admin]` | `[password-admin]` | admin | Kamu | [email-admin] |
 | 2 | `rohandhika` | `rohandhika123` | user | Rohandhika | rohandhika@tokokita.id |
 | 3 | `sari` | `sari123` | user | Sari Dewi | sari@tokokita.id |
-| 4 | `jun` | `jun12345` | user | Jun Pratama | jun@tokokita.id |
+| 4 | `[username-pelaku]` | `[password-pelaku]` | user | Pelaku | [email-pelaku] |
 | 5 | `budi` | `budi12345` | user | Budi Santoso | budi@tokokita.id |
 | 6 | `maya` | `maya12345` | user | Maya Putri | maya@tokokita.id |
 | 7 | `dimas` | `dimas12345` | user | Dimas Saputra | dimas@tokokita.id |
@@ -319,7 +321,7 @@ Akun dummy tambahan (selain tiga akun utama) terutama untuk latihan login dan ko
 | ---: | --- | --- | --- | --- | --- | --- | --- |
 | #101 | rohandhika | Keyboard Mechanical RGB Hot-Swap 75% | Rp749.000 | Rohandhika | Jl. Sudirman No. 12, Medan | 0813-xxxx-2210 | Sedang Dikirim |
 | #102 | rohandhika | Tas Ransel Laptop Anti Air 15,6 Inci | Rp349.000 | Rohandhika | Jl. Sudirman No. 12, Medan | 0813-xxxx-2210 | Selesai |
-| #201 | kamila | Laptop ASUS Vivobook 14 (stok toko) | Rp8.999.000 | Kamila | Jl. Merdeka No. 45, Medan | 0812-xxxx-8899 | Selesai |
+| #201 | kamu | Laptop ASUS Vivobook 14 (stok toko) | Rp8.999.000 | Kamu | Jl. Merdeka No. 45, Medan | 0812-xxxx-8899 | Selesai |
 | #202 | sari | Headphone Sony WH-1000XM5 | Rp4.299.000 | Sari Dewi | Jl. Gatot Subroto No. 8, Medan | 0821-xxxx-3345 | Dikemas |
 | #203 | sari | Sepatu Running AirFlex Putih | Rp899.000 | Sari Dewi | Jl. Gatot Subroto No. 8, Medan | 0821-xxxx-3345 | Selesai |
 
@@ -402,8 +404,8 @@ Tidak ada parameterized statement (cara aman: input diperlakukan sebagai data, b
 
 **Adegan login (Burp Repeater):**
 
-1. Kamila menampilkan halaman toko dan bilang alur login terlihat normal.
-2. Jun menguji login menggunakan Burp Repeater. Kamila tidak perlu mengetik payload sendiri.
+1. Kamu menampilkan halaman toko dan bilang alur login terlihat normal.
+2. Pelaku menguji login menggunakan Burp Repeater. Kamu tidak perlu mengetik payload sendiri.
 3. Di browser Burp, isi username:
    ```text
    ' OR '1'='1
@@ -411,8 +413,8 @@ Tidak ada parameterized statement (cara aman: input diperlakukan sebagai data, b
    Isi password apa saja, misalnya `demo`, lalu tekan Masuk.
 4. Di Burp **Proxy → HTTP history**, cari `POST /api/login`, klik kanan → **Send to Repeater**.
 5. Pada tab **Repeater**, periksa request: `Content-Type: application/json`, body berisi `identifier` dan `password`. Klik **Send**.
-6. Jun menunjukkan response berisi akun hasil bypass, dengan `role: admin` — itu akun Kamila, admin demo, didapat tanpa password yang benar. Baris pertama di tabel `users` adalah Kamila, jadi bypass selalu menghasilkan admin.
-7. Kamila bereaksi pada dampaknya: "Jadi sistem percaya pada input tanpa memeriksa kredensial dengan benar."
+6. Pelaku menunjukkan response berisi akun hasil bypass, dengan `role: admin` — itu akun Kamu, admin demo, didapat tanpa password yang benar. Baris pertama di tabel `users` adalah Kamu, jadi bypass selalu menghasilkan admin.
+7. Kamu bereaksi pada dampaknya: "Jadi sistem percaya pada input tanpa memeriksa kredensial dengan benar."
 
 Penting untuk dijelaskan ke audiens: ini bukan password cracking (menebak password berkali-kali). Inputnya mengubah logika query karena query menyambung string input. Satu request saja cukup.
 
@@ -432,7 +434,7 @@ SELECT id, name, category, description FROM lab_products
 WHERE category = '<category>' LIMIT 10
 ```
 
-**Peran Kamila di adegan lab:** jelaskan bahwa tool otomatis membantu menguji konsistensi temuan, tetapi pemindaian bisa mengirim banyak request. Jun menjalankannya di localhost sebelum presentasi; saat di panggung cukup tunjukkan hasil yang disiapkan dan satu request `curl` yang menampilkan fixture:
+**Peran Kamu di adegan lab:** jelaskan bahwa tool otomatis membantu menguji konsistensi temuan, tetapi pemindaian bisa mengirim banyak request. Pelaku menjalankannya di localhost sebelum presentasi; saat di panggung cukup tunjukkan hasil yang disiapkan dan satu request `curl` yang menampilkan fixture:
 
 ```bash
 curl 'http://127.0.0.1:8000/api/lab/search?category=electronics'
@@ -480,17 +482,17 @@ Dua tempat, yang saling melengkapi:
 
 **Adegan dua laptop (langkah demi langkah):**
 
-1. Kamila login sebagai akun admin dummy (`kamila / kamila123`) di browser pada laptopnya.
-2. Jun menaruh review uji pada produk melalui laptopnya. Payload yang dipakai untuk collector:
+1. Kamu login sebagai akun admin dummy (`[username-admin]` / `[password-admin]`) di browser pada laptopnya.
+2. Pelaku menaruh review uji pada produk melalui laptopnya. Payload yang dipakai untuk collector:
    ```html
-   <img src=x onerror="if(document.cookie.includes('user=kamila'))fetch('/api/collect?c='+encodeURIComponent(document.cookie))">
+   <img src=x onerror="if(document.cookie.includes('user=[username-admin]'))fetch('/api/collect?c='+encodeURIComponent(document.cookie))">
    ```
-   Penjelasan payload untuk Kamila: ini sebuah tag gambar yang sengaja rusak (`src=x`), sehingga browser menjalankan kode di `onerror` saat gambar gagal dimuat. Kode itu memeriksa dulu apakah cookie berisi `user=kamila` — jadi hanya cookie admin demo yang dikirim, bukan cookie sembarang pengunjung — lalu mengirim seluruh `document.cookie` ke `/api/collect` di aplikasi sendiri.
-3. Kamila membuka halaman produk yang sama pada browser demo yang dikendalikan tim.
-4. Payload membaca cookie Kamila dan mengirimnya ke `/api/collect` pada aplikasi sendiri.
-5. Jun membuka `/collector` pada laptopnya untuk menunjukkan bukti cookie demo diterima. Halaman `/collector` menampilkan tabel jam, IP, dan cookie yang masuk (dengan escape HTML, jadi cookie yang tampil di sana tidak ikut menjalankan kode).
+   Penjelasan payload untuk Kamu: ini sebuah tag gambar yang sengaja rusak (`src=x`), sehingga browser menjalankan kode di `onerror` saat gambar gagal dimuat. Kode itu memeriksa dulu apakah cookie berisi `user=[username-admin]` — jadi hanya cookie admin demo yang dikirim, bukan cookie sembarang pengunjung — lalu mengirim seluruh `document.cookie` ke `/api/collect` di aplikasi sendiri.
+3. Kamu membuka halaman produk yang sama pada browser demo yang dikendalikan tim.
+4. Payload membaca cookie Kamu dan mengirimnya ke `/api/collect` pada aplikasi sendiri.
+5. Pelaku membuka `/collector` pada laptopnya untuk menunjukkan bukti cookie demo diterima. Halaman `/collector` menampilkan tabel jam, IP, dan cookie yang masuk (dengan escape HTML, jadi cookie yang tampil di sana tidak ikut menjalankan kode).
 
-**Pembatas collector (penting, supaya tidak salah paham):** `server.py`, endpoint `GET /api/collect`, hanya menerima string cookie yang memiliki pasangan tepat `user=kamila` dan panjang maksimal 1024 karakter, dan hanya menyimpan maksimal 50 entri di memori proses (`STOLEN`). Cookie akun lain ditolak dengan 404. Ini pembatas demo, **bukan bukti bahwa stored XSS aman**: payload tetap berjalan pada halaman produk, dan kolektor tetap menerima token sesi admin dummy yang cocok. Collector menyimpan hasil di memori proses — reset API toko tidak menghapus daftar itu; restart/redeploy aplikasi yang membersihkannya.
+**Pembatas collector (penting, supaya tidak salah paham):** `server.py`, endpoint `GET /api/collect`, hanya menerima string cookie yang memiliki pasangan tepat `user=[username-admin]` dan panjang maksimal 1024 karakter, dan hanya menyimpan maksimal 50 entri di memori proses (`STOLEN`). Cookie akun lain ditolak dengan 404. Ini pembatas demo, **bukan bukti bahwa stored XSS aman**: payload tetap berjalan pada halaman produk, dan kolektor tetap menerima token sesi admin dummy yang cocok. Collector menyimpan hasil di memori proses — reset API toko tidak menghapus daftar itu; restart/redeploy aplikasi yang membersihkannya.
 
 **Varian payload yang lebih aman untuk latihan lokal:** kalau mau menunjukkan stored XSS tanpa mengirim cookie ke mana pun, pakai payload alert:
 
@@ -500,7 +502,7 @@ Dua tempat, yang saling melengkapi:
 
 Login dengan akun demo pada browser lokal yang dikendalikan tim, buka halaman produk, kirim payload sebagai review, reload halaman produk. Dialog alert menunjukkan stored payload dieksekusi saat render. Reset database lokal sesudahnya.
 
-**Peran dan persetujuan:** Kamila harus tahu kapan adegan dimulai, login hanya dengan akun demo, dan menyetujui payload. Jangan gunakan akun pribadi. Jangan menampilkan token aktif terlalu lama ke proyektor atau rekaman; token sesi harus diperlakukan sebagai rahasia sementara. Jangan salin cookie ke host lain, jangan gunakan sesi/akun pribadi, dan segera reset ulasan setelah adegan.
+**Peran dan persetujuan:** Kamu harus tahu kapan adegan dimulai, login hanya dengan akun demo, dan menyetujui payload. Jangan gunakan akun pribadi. Jangan menampilkan token aktif terlalu lama ke proyektor atau rekaman; token sesi harus diperlakukan sebagai rahasia sementara. Jangan salin cookie ke host lain, jangan gunakan sesi/akun pribadi, dan segera reset ulasan setelah adegan.
 
 **Dampak di aplikasi nyata:** script dapat bertindak dalam konteks situs (misalnya mengubah nama toko, membuat pesanan, mengubah data) dan, bila cookie bisa dibaca, berpotensi mencuri sesi. Pengunjung yang membuka review dapat terdampak — karena itu adegan harus singkat dan payload dihapus segera.
 
@@ -568,18 +570,18 @@ self._cookies.append("user=%s; Path=/" % username)
 
 Komentar di kodenya: "SENGAJA tanpa HttpOnly: cookie bisa dibaca JavaScript (stored XSS)." Tidak ada `HttpOnly`, tidak ada `Secure`, tidak ada `SameSite` pada kedua cookie itu.
 
-Tapi itu baru separuh ceritanya. Masalah yang lebih besar ada di fungsi `current_user` (dijelaskan juga di Bagian 2.2): kalau token `PHPSESSID` tidak ditemukan, server **percaya begitu saja pada cookie `user`**. Ini dibahas tuntas sebagai temuan audit B di Bagian 6, karena akibatnya lebih langsung daripada pencurian sesi lewat XSS: penyerang tidak perlu mencuri apa pun, cukup menulis sendiri cookie `user=kamila` di browser, dan server langsung menganggapnya admin. Di README, jalur ini bahkan didokumentasikan sebagai "jalur cadangan kalau XSS gagal saat live":
+Tapi itu baru separuh ceritanya. Masalah yang lebih besar ada di fungsi `current_user` (dijelaskan juga di Bagian 2.2): kalau token `PHPSESSID` tidak ditemukan, server **percaya begitu saja pada cookie `user`**. Ini dibahas tuntas sebagai temuan audit B di Bagian 6, karena akibatnya lebih langsung daripada pencurian sesi lewat XSS: penyerang tidak perlu mencuri apa pun, cukup menulis sendiri cookie `user=[username-admin]` di browser, dan server langsung menganggapnya admin. Di README, jalur ini bahkan didokumentasikan sebagai "jalur cadangan kalau XSS gagal saat live":
 
 ```js
-document.cookie = "user=kamila; path=/";
+document.cookie = "user=[username-admin]; path=/";
 location.reload();
 ```
 
 Setelah itu, buka Dashboard Penjual dan ganti nama toko jadi `TOKO DIHACK` — perubahan tersimpan di server. Itu menunjukkan bahwa kelemahan sesi di sini bukan cuma soal `HttpOnly`, tapi soal identitas yang dipercaya dari cookie yang bisa ditulis siapa saja.
 
-**Adegan:** kategori ini tidak punya adegan terpisah — adegannya menyatu dengan adegan stored XSS (Kategori 2), di mana cookie Kamila yang terbaca JavaScript dikirim ke collector dan ditampilkan di `/collector`. Saat adegan itu berlangsung, Kamila bisa menjelaskan: "Cookie saya bisa dibaca JavaScript karena tidak ada perlindungan HttpOnly. Dan di aplikasi ini, cookie berisi nama user juga dipercaya begitu saja — jadi sebenarnya ada dua jalan masuk, bukan satu."
+**Adegan:** kategori ini tidak punya adegan terpisah — adegannya menyatu dengan adegan stored XSS (Kategori 2), di mana cookie Kamu yang terbaca JavaScript dikirim ke collector dan ditampilkan di `/collector`. Saat adegan itu berlangsung, Kamu bisa menjelaskan: "Cookie saya bisa dibaca JavaScript karena tidak ada perlindungan HttpOnly. Dan di aplikasi ini, cookie berisi nama user juga dipercaya begitu saja — jadi sebenarnya ada dua jalan masuk, bukan satu."
 
-**Peran Kamila:** pada adegan XSS, tegaskan bahwa sesi yang dipakai adalah sesi akun demo yang disetujui untuk ditampilkan buktinya, bukan akun pribadi. Jangan menampilkan token aktif terlalu lama ke proyektor atau rekaman.
+**Peran Kamu:** pada adegan XSS, tegaskan bahwa sesi yang dipakai adalah sesi akun demo yang disetujui untuk ditampilkan buktinya, bukan akun pribadi. Jangan menampilkan token aktif terlalu lama ke proyektor atau rekaman.
 
 **Perbaikan nyata:** cookie sesi memakai `HttpOnly`, `Secure`, dan `SameSite`; identitas pengguna ditentukan dari token sesi yang valid di server (disimpan di `SESSIONS` dan dicocokkan dengan database), bukan dari cookie berisi username; rotasi sesi setelah login (buat token baru setiap kali login berhasil).
 
@@ -616,7 +618,7 @@ Perlu dicatat: query-nya sendiri memakai parameter (`?`), jadi endpoint ini tida
    GET /api/orders/201
    ```
    Di demo publik: `https://tokokita-web-production.up.railway.app/api/orders/201`
-3. Response `200` berisi pesanan milik Kamila: Laptop ASUS Vivobook 14, Rp8.999.000, alamat `Jl. Merdeka No. 45, Medan`, telepon `0812-xxxx-8899`, status Selesai.
+3. Response `200` berisi pesanan milik Kamu: Laptop ASUS Vivobook 14, Rp8.999.000, alamat `Jl. Merdeka No. 45, Medan`, telepon `0812-xxxx-8899`, status Selesai.
 4. Ganti ke `?id=202` untuk pesanan Sari Dewi (Headphone Sony WH-1000XM5, Rp4.299.000, Jl. Gatot Subroto No. 8, Medan).
 5. Batasi demonstrasi ke ID fixture `201`, `202`, atau `203`. Jangan enumerasi ID lain.
 
@@ -672,12 +674,12 @@ Tidak ada `os.system`, `subprocess`, `exec`, atau pemanggilan perintah sistem ap
 
 ## 6. Temuan audit tambahan — di luar adegan demo
 
-Lima temuan berikut nyata di kode, tetapi **bukan adegan demo dan tidak mengubah hitungan 6 kategori / 7 adegan**. Bagian ini ada supaya Kamila paham proyek ini secara utuh — Jun yang membuat proyeknya, Kamila perlu paham juga sedetail mungkin — dan supaya tidak ada yang mengklaim aplikasi "aman di luar enam kategori itu", serta supaya Kamila siap jika audiens atau juri bertanya lebih dalam.
+Lima temuan berikut nyata di kode, tetapi **bukan adegan demo dan tidak mengubah hitungan 6 kategori / 7 adegan**. Bagian ini ada supaya Kamu paham proyek ini secara utuh — Pelaku yang membuat proyeknya, Kamu perlu paham juga sedetail mungkin — dan supaya tidak ada yang mengklaim aplikasi "aman di luar enam kategori itu", serta supaya Kamu siap jika audiens atau juri bertanya lebih dalam.
 
 | # | Temuan | Di mana di kode | Kenapa penting | Perbaikan nyata |
 | ---: | --- | --- | --- | --- |
 | A | Password disimpan plaintext, tanpa hashing | `server.py`, `SEED_USERS` dan `api_register`: `INSERT INTO users(username, password, ...)` dengan password apa adanya | Satu kebocoran database langsung membocorkan semua password apa adanya; password yang sama dipakai di tempat lain ikut bocor | Hash password dengan algoritma khusus password, misalnya bcrypt atau argon2; jangan pernah menyimpan password plaintext |
-| B | Cookie `user=kamila` dipercaya tanpa token | `server.py`, `current_user`: kalau `PHPSESSID` tidak ketemu, `username = self.cookies().get("user")` tanpa verifikasi apa pun | Siapa pun bisa mengatur cookie itu di browser dan dianggap admin — tanpa XSS sama sekali, tanpa mencuri apa pun, tanpa password | Identitas hanya dari token sesi yang valid dan terverifikasi di server; jangan pernah percaya cookie berisi username |
+| B | Cookie `user=[username-admin]` dipercaya tanpa token | `server.py`, `current_user`: kalau `PHPSESSID` tidak ketemu, `username = self.cookies().get("user")` tanpa verifikasi apa pun | Siapa pun bisa mengatur cookie itu di browser dan dianggap admin — tanpa XSS sama sekali, tanpa mencuri apa pun, tanpa password | Identitas hanya dari token sesi yang valid dan terverifikasi di server; jangan pernah percaya cookie berisi username |
 | C | `/api/login` membocorkan error SQL | `server.py`, `api_login`: `except sqlite3.Error as exc: return {"error": "SQL error: %s" % exc}, 500` | Pesan error membantu penyerang menyusun payload SQLi berikutnya (error-based SQLi) | Tampilkan pesan generik ke pengguna ("Username/email atau kata sandi salah"); catat detail error hanya di log server |
 | D | Checkout tanpa login dan tanpa validasi negatif | `server.py`, `api_checkout`: tidak memanggil `current_user` untuk wajib login; `price` dan `qty` langsung dipakai tanpa cek `> 0` | Pesanan bisa dibuat tanpa akun (pemilik "tamu"), dan harga atau jumlah negatif tidak ditolak — total bisa negatif atau nol | Wajib login; validasi harga dari database dan jumlah harus positif; hitung total di server |
 | E | Upload tanpa login dan tanpa batas ukuran | `server.py`, `api_upload`: tidak memeriksa login, tidak memeriksa ukuran (`Content-Length` dibaca apa adanya) | File bisa diunggah tanpa akun, dan ukuran file tidak dibatasi — server bisa dipenuhi file besar | Wajib login; tetapkan batas ukuran, allowlist format, dan validasi isi |
@@ -685,14 +687,14 @@ Lima temuan berikut nyata di kode, tetapi **bukan adegan demo dan tidak mengubah
 **Cara menjelaskan ke audiens, dengan bahasa sederhana:**
 
 - **Password plaintext:** "Password di database kami simpan apa adanya. Di aplikasi nyata itu tidak boleh — password harus disimpan sebagai hash, jadi database bocor pun password aslinya tidak langsung terbaca."
-- **Cookie `user` dipercaya mentah-mentah:** "Ini sebenarnya lebih parah dari cookie yang bisa dicuri. Penyerang tidak perlu mencuri apa pun — cukup menulis sendiri cookie `user=kamila` di browser, server langsung menganggapnya admin."
+- **Cookie `user` dipercaya mentah-mentah:** "Ini sebenarnya lebih parah dari cookie yang bisa dicuri. Penyerang tidak perlu mencuri apa pun — cukup menulis sendiri cookie `user=[username-admin]` di browser, server langsung menganggapnya admin."
 - **Error SQL bocor:** "Kalau login gagal dengan cara tertentu, server menjawab dengan detail error databasenya. Itu seperti memberi petunjuk gratis untuk serangan berikutnya."
 - **Checkout dan upload tanpa login:** "Dua endpoint ini tidak memeriksa siapa yang mengirim request, dan tidak memeriksa apakah angka atau ukurannya masuk akal. Di aplikasi nyata, keduanya harus wajib login dan divalidasi di server."
 
 > [!NOTE]
 > Temuan-temuan ini **didokumentasikan, bukan diperbaiki di kode demo**. Celahnya sengaja ada agar demo berjalan; menambalnya di `server.py` akan mematikan adegan presentasi. Perbaikannya adalah pekerjaan setelah presentasi, kalau TokoKita dikembangkan jadi aplikasi sungguhan.
 
-**Satu hal lagi yang sudah selesai — file `mitm_mcp_traffic.db`:** file ini sempat ikut ter-commit di repo tanpa penjelasan. Audit isinya (dibuka read-only atas persetujuan Jun) menunjukkan: satu tabel `flows` (skema recorder mitmproxy MCP) dengan **0 baris** — tidak ada URL, header, body, token, atau data toko sama sekali. File itu sudah dihapus dari repo (commit `5524bd8`) dan ditambahkan ke `.gitignore` (commit `7182ca9`). Jadi item terbuka ini sudah tertutup; tidak ada data yang hilang karena file itu kosong.
+**Satu hal lagi yang sudah selesai — file `mitm_mcp_traffic.db`:** file ini sempat ikut ter-commit di repo tanpa penjelasan. Audit isinya (dibuka read-only atas persetujuan Pelaku) menunjukkan: satu tabel `flows` (skema recorder mitmproxy MCP) dengan **0 baris** — tidak ada URL, header, body, token, atau data toko sama sekali. File itu sudah dihapus dari repo (commit `5524bd8`) dan ditambahkan ke `.gitignore` (commit `7182ca9`). Jadi item terbuka ini sudah tertutup; tidak ada data yang hilang karena file itu kosong.
 
 
 ## 7. Alur acara dua laptop (12 menit) — rundown resmi
@@ -701,30 +703,30 @@ Ini satu-satunya urutan panggung yang berlaku. Penomoran **Adegan 1–7** hanya 
 
 ### Sebelum audiens masuk — checklist persiapan
 
-- [ ] Jun menguji seluruh langkah pada server lokal; sqlmap dan Nmap selesai sebelumnya. Jangan menjalankan sqlmap atau Nmap untuk pertama kalinya di panggung.
+- [ ] Pelaku menguji seluruh langkah pada server lokal; sqlmap dan Nmap selesai sebelumnya. Jangan menjalankan sqlmap atau Nmap untuk pertama kalinya di panggung.
 - [ ] Screenshot singkat hasil sqlmap disiapkan agar tidak menunggu tool di panggung. Siapkan juga screenshot hasil Nmap lokal kalau mau ditampilkan sekilas.
-- [ ] Kamila login ke akun dummy hanya saat diperlukan (jangan login terlalu awal dan membiarkan sesi terbuka lama).
+- [ ] Kamu login ke akun dummy hanya saat diperlukan (jangan login terlalu awal dan membiarkan sesi terbuka lama).
 - [ ] Pastikan domain yang dibuka hanya domain aplikasi TokoKita (lokal `http://127.0.0.1:8000` atau publik `https://tokokita-web-production.up.railway.app`).
 - [ ] Tutup tab lain dan notifikasi. Jangan menayangkan cookie token mentah ke proyektor atau rekaman.
-- [ ] Sepakati isyarat berhenti. Kamila boleh berkata "stop" kapan saja; Jun langsung menghentikan adegan.
+- [ ] Sepakati isyarat berhenti. Kamu boleh berkata "stop" kapan saja; Pelaku langsung menghentikan adegan.
 - [ ] Pastikan hanya satu presenter yang mengirim request pada satu waktu di deployment publik (satu browser terkendali, satu request pada satu waktu).
 - [ ] Siapkan fallback: screenshot/rekaman untuk setiap adegan, supaya kalau satu langkah gagal di panggung, presentasi tetap jalan tanpa improvisasi ke target lain.
 
 ### Urutan adegan
 
-| Adegan | Waktu | Layar / aksi | Peran Kamila dan narasi |
+| Adegan | Waktu | Layar / aksi | Peran Kamu dan narasi |
 | ---: | --- | --- | --- |
-| — | 0:00–1:00 | Dua laptop menampilkan TokoKita normal | Perkenalkan peran, izin, dan scope. "Saya Kamila, pemilik TokoKita. Jun menguji aplikasi demo ini dengan izin saya." |
+| — | 0:00–1:00 | Dua laptop menampilkan TokoKita normal | Perkenalkan peran, izin, dan scope. "Saya pemilik TokoKita. Pelaku menguji aplikasi demo ini dengan izin saya." |
 | — | 1:00–2:00 | Browser Burp membuka halaman; HTTP history muncul | "Ini request yang dikirim browser ke aplikasi." Jelaskan bahwa setiap klik di toko mengirim request, dan Burp hanya menampilkannya. |
-| 1 | 2:00–3:30 | Jun tunjukkan harga checkout berubah jadi Rp100 | "Harga seharusnya dihitung server, bukan dipercaya dari browser." |
-| 2 | 3:30–5:00 | Jun buka order fixture #201 | "Nomor pesanan bukan pengganti pemeriksaan hak akses." |
+| 1 | 2:00–3:30 | Pelaku tunjukkan harga checkout berubah jadi Rp100 | "Harga seharusnya dihitung server, bukan dipercaya dari browser." |
+| 2 | 3:30–5:00 | Pelaku buka order fixture #201 | "Nomor pesanan bukan pengganti pemeriksaan hak akses." |
 | 3 | 5:00–6:30 | Burp Repeater menunjukkan SQLi login | "Input login mengubah cara aplikasi bertanya ke database." |
 | 4 | 6:30–7:30 | Screenshot sqlmap lokal + curl fixture | "Tool membantu memastikan parameter lab rentan; database latihan terpisah." |
-| 5 | 7:30–9:30 | Review uji, Kamila membuka produk, Jun menunjukkan collector | "Konten tersimpan dapat berjalan saat dibuka. Ini sesi demo yang saya setujui." |
+| 5 | 7:30–9:30 | Review uji, Kamu membuka produk, Pelaku menunjukkan collector | "Konten tersimpan dapat berjalan saat dibuka. Ini sesi demo yang saya setujui." |
 | 6 | 9:30–10:15 | Upload/shell simulasi hanya jika waktu cukup dan lokal | Tegaskan output palsu, bukan command sungguhan. |
 | 7 | 10:15–12:00 | Slide temuan dan mitigasi | Tutup dengan pelajaran: validasi/otorisasi harus dilakukan server. Reset setelahnya. |
 
-Nmap bukan pembuka di panggung. Jun menjalankannya sebelumnya pada `127.0.0.1`; hasilnya hanya konteks port lokal, bukan temuan aplikasi. Kalau mau disebutkan, sebutkan singkat di awal sebagai konteks ("server demo lokal kami membuka port 8000"), lalu lanjut ke adegan.
+Nmap bukan pembuka di panggung. Pelaku menjalankannya sebelumnya pada `127.0.0.1`; hasilnya hanya konteks port lokal, bukan temuan aplikasi. Kalau mau disebutkan, sebutkan singkat di awal sebagai konteks ("server demo lokal kami membuka port 8000"), lalu lanjut ke adegan.
 
 ### Kalimat transisi sederhana (dipakai antar adegan)
 
@@ -786,7 +788,7 @@ Aplikasi publik memakai HTTPS. Gunakan browser Burp bawaan yang sudah disiapkan.
 
 1. Gunakan sesi pembeli demo (`rohandhika`) atau tanpa login.
 2. Kirim request `GET /api/orders/201` (Host: domain TokoKita). Cara mudah: buka URL itu di browser Burp.
-3. Response `200` berisi order milik Kamila, termasuk data alamat/nomor demo.
+3. Response `200` berisi order milik Kamu, termasuk data alamat/nomor demo.
 4. Batasi demonstrasi ke ID fixture `201`, `202`, atau `203`. Jangan enumerasi ID lain.
 5. Narasi: autentikasi saja tidak cukup; setiap object harus dicek izin pemiliknya.
 
@@ -873,7 +875,7 @@ curl 'http://127.0.0.1:8000/api/prices'
 
 ## 9. Data, risiko demo publik, dan tombol berhenti
 
-### Risiko yang perlu Kamila pahami (satu per satu)
+### Risiko yang perlu Kamu pahami (satu per satu)
 
 1. **Review XSS tersimpan.** Payload akan tetap berada di database sampai di-reset. Jika pengunjung lain membuka halaman yang sama sebelum reset, browsernya dapat menjalankannya. Karena itu adegan harus singkat dan payload dihapus segera.
 2. **Cookie adalah token sesi.** Jangan memperlihatkan atau menyebarkan token. Setelah demo, matikan deployment; selama masih hidup, jangan gunakan akun admin untuk hal lain.
@@ -885,13 +887,13 @@ curl 'http://127.0.0.1:8000/api/prices'
 
 ### Kapan berhenti — tombol berhenti
 
-Berhenti segera (Kamila boleh berkata "stop" kapan saja; Jun langsung menghentikan adegan) kalau:
+Berhenti segera (Kamu boleh berkata "stop" kapan saja; Pelaku langsung menghentikan adegan) kalau:
 
 - URL/host yang muncul bukan domain TokoKita.
 - Ada informasi yang tampak sungguhan atau bukan data demo.
 - Payload akan berjalan di browser orang yang tidak ikut presentasi.
 - Ada error yang mendorong untuk memperluas scan/meningkatkan intensitas.
-- Kamila meminta berhenti.
+- Kamu meminta berhenti.
 
 Jika ada kendala, gunakan screenshot/rekaman. Jangan mencoba target lain untuk "membuat demo berhasil".
 
@@ -901,7 +903,7 @@ Jika ada kendala, gunakan screenshot/rekaman. Jangan mencoba target lain untuk "
 
 ### Reset aplikasi
 
-Saat login sebagai Kamila, jalankan di Console browser aplikasi:
+Saat login sebagai Kamu, jalankan di Console browser aplikasi:
 
 ```js
 fetch('/api/seller/reset', {
@@ -947,7 +949,7 @@ Jalankan server lagi; database seed dibuat ulang. Jangan jalankan perintah hapus
 
 ### Setelah presentasi
 
-1. Jun menjalankan reset aplikasi dan memverifikasi data seed (ceklist di atas).
+1. Pelaku menjalankan reset aplikasi dan memverifikasi data seed (ceklist di atas).
 2. Pemilik layanan mematikan deployment Railway segera setelah presentasi selesai. Ini tindakan terpisah dari reset data — reset tidak mematikan deployment.
 3. Hapus screenshot/log yang memuat cookie sesi atau informasi yang tidak perlu.
 4. Pastikan URL demo tidak lagi merespons setelah shutdown.
@@ -997,7 +999,7 @@ Cookie sesi di demo ini sengaja tidak memakai perlindungan `HttpOnly`, jadi Java
 Betul — password tersimpan tanpa hashing, cookie `user` yang bisa ditulis sendiri untuk jadi admin, error SQL yang bocor, serta checkout dan upload tanpa login. Semuanya terdokumentasi di Bagian 6 dokumen ini. Enam kategori adalah yang didemokan; temuan tambahan itu nyata, tetapi tidak kami jadikan adegan panggung.
 
 **"Apakah demo ini legal?"**
-Ya, karena ini aplikasi milik tim sendiri, pengujian dilakukan dengan izin pemilik (Kamila), semua data dummy, dan scope dibatasi hanya ke aplikasi TokoKita — bukan ke hosting, jaringan, atau sistem pihak lain.
+Ya, karena ini aplikasi milik tim sendiri, pengujian dilakukan dengan izin pemilik (Kamu), semua data dummy, dan scope dibatasi hanya ke aplikasi TokoKita — bukan ke hosting, jaringan, atau sistem pihak lain.
 
 **"Kalau aplikasinya sudah tahu rentan, kenapa tidak langsung diperbaiki saja?"**
 Karena tujuan demo ini adalah menunjukkan kelemahannya, supaya audiens belajar. Perbaikannya sudah dijelaskan di setiap kategori (Bagian 5) dan temuan tambahan (Bagian 6); menambal kodenya sekarang akan mematikan adegan demo. Perbaikan adalah langkah setelah presentasi, kalau TokoKita dikembangkan jadi aplikasi sungguhan.
@@ -1008,9 +1010,9 @@ Karena tujuan demo ini adalah menunjukkan kelemahannya, supaya audiens belajar. 
 
 ### Referensi internal
 
-- Panduan demo untuk Kamila (dokumen ini): `docs/runbook.md`
+- Panduan demo untuk Kamu (dokumen ini): `docs/runbook.md`
 - Langkah teknis dan command: `docs/demo-runbook.md` — urutan rundown di dalamnya perlu diselaraskan dengan Bagian 7 dokumen ini (dokumen teknis itu masih memulai dari SQLi, sedangkan rundown resmi di sini memulai dari harga).
-- Ringkasan aplikasi dan cara menjalankan: `README.md` — link panduannya perlu diperbaiki menjadi `docs/runbook.md` (sebelumnya tertulis `docs/panduan-kamila.md`, path yang tidak ada di repo).
+- Ringkasan aplikasi dan cara menjalankan: `README.md` — link panduannya perlu diperbaiki menjadi `docs/runbook.md` (sebelumnya tertulis `docs/panduan-kamu.md`, path yang tidak ada di repo).
 - Spesifikasi demo: `SPEC-public-pentest-demo.md`
 - Peta kapabilitas: `CAPABILITY-MAP.md`
 - Repo: [TheFoolByte/tokokita-web](https://github.com/TheFoolByte/tokokita-web)
@@ -1022,22 +1024,22 @@ Karena tujuan demo ini adalah menunjukkan kelemahannya, supaya audiens belajar. 
 | ---: | --- | --- | --- |
 | 1 | Hitungan kerentanan | Berbeda-beda antar dokumen: 6 kategori / 7 baris di panduan ini, angka lain di `demo-runbook.md` dan README, sesi dihitung sebagai bagian XSS | Satu angka resmi di semua bagian dokumen ini: **6 kategori, 7 adegan**; sesi lemah adalah kategori tersendiri |
 | 2 | Urutan rundown | Panduan ini mulai dari harga, `demo-runbook.md` mulai dari SQLi | Satu urutan resmi di Bagian 7: harga → IDOR → SQLi login → sqlmap → XSS → upload → mitigasi dan reset. Dokumen teknis lain perlu diselaraskan ke urutan ini |
-| 3 | Link panduan di README | README menunjuk `docs/panduan-kamila.md`, path yang tidak ada di repo | Path yang benar adalah `docs/runbook.md` — README di repo masih perlu diubah ke path ini |
+| 3 | Link panduan di README | README menunjuk `docs/panduan-kamu.md`, path yang tidak ada di repo | Path yang benar adalah `docs/runbook.md` — README di repo masih perlu diubah ke path ini |
 | 4 | Celah yang belum terdokumentasi | Lima celah tambahan ada di kode tetapi tidak disebut di runbook | Didokumentasikan di Bagian 6, tanpa mengubah kode demo |
 | 5 | File `mitm_mcp_traffic.db` | Ikut ter-commit di repo tanpa penjelasan di dokumen mana pun | Sudah dihapus dari repo dan ditambahkan ke `.gitignore` (audit isinya: 1 tabel `flows`, 0 baris — skema kosong, tidak ada data) |
-| 6 | Kelengkapan penjelasan | Versi sebelumnya terlalu ringkas untuk Kamila yang perlu paham proyek dari ujung ke ujung | Edisi lengkap ini: arsitektur, database, semua endpoint, semua akun/pesanan/produk, langkah tiap adegan dan tiap tool, risiko, reset, fallback, dan Q&A — supaya Kamila paham proyek ini sedetail Jun yang membuatnya |
+| 6 | Kelengkapan penjelasan | Versi sebelumnya terlalu ringkas untuk Kamu yang perlu paham proyek dari ujung ke ujung | Edisi lengkap ini: arsitektur, database, semua endpoint, semua akun/pesanan/produk, langkah tiap adegan dan tiap tool, risiko, reset, fallback, dan Q&A — supaya Kamu paham proyek ini sedetail Pelaku yang membuatnya |
 
 ### Checklist terakhir sebelum naik panggung
 
 - [ ] Semua penyebutan jumlah sudah "6 kategori, 7 adegan" — tidak ada angka lain.
-- [ ] Rundown yang dipegang Jun dan Kamila sama: harga → IDOR → SQLi login → sqlmap → XSS → upload → mitigasi dan reset.
+- [ ] Rundown yang dipegang Pelaku dan Kamu sama: harga → IDOR → SQLi login → sqlmap → XSS → upload → mitigasi dan reset.
 - [ ] Link panduan di README repo sudah mengarah ke `docs/runbook.md`.
-- [ ] Kamila bisa menjelaskan tiap kategori di Bagian 5 dengan bahasa sendiri, dan lima temuan tambahan di Bagian 6 dengan bahasa sederhana.
-- [ ] Kamila tahu semua akun demo, pesanan seed, dan apa yang dilakukan tiap endpoint.
+- [ ] Kamu bisa menjelaskan tiap kategori di Bagian 5 dengan bahasa sendiri, dan lima temuan tambahan di Bagian 6 dengan bahasa sederhana.
+- [ ] Kamu tahu semua akun demo, pesanan seed, dan apa yang dilakukan tiap endpoint.
 - [ ] Screenshot hasil sqlmap dan Nmap lokal sudah siap; tidak ada tool pemindaian yang dijalankan ke target publik.
 - [ ] Reset sudah dicoba sekali di lokal dan hasilnya terverifikasi.
 - [ ] Keputusan soal `mitm_mcp_traffic.db` sudah diambil (sudah dihapus + `.gitignore`).
 - [ ] Rencana mematikan deployment setelah acara sudah jelas siapa yang menjalankan.
-- [ ] Isyarat berhenti sudah disepakati; Kamila tahu dia boleh berkata "stop" kapan saja.
+- [ ] Isyarat berhenti sudah disepakati; Kamu tahu dia boleh berkata "stop" kapan saja.
 
 Semua akun dan record adalah sintetis; deployment publik hanya berlangsung sementara untuk presentasi dan harus dimatikan sesudahnya.
