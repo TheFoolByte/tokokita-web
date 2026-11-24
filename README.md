@@ -7,6 +7,12 @@
 > Shell PHP di folder `uploads/` **hanya simulasi** — tidak ada perintah sistem
 > yang benar-benar dijalankan.
 
+## Lihat di web
+
+- **Demo online (aplikasi):** <https://tokokita-web-production.up.railway.app/> — toko demo yang sudah jalan, bisa dibuka dari browser mana saja.
+- **Runbook lengkap (tampilan web):** [docs/runbook.md di GitHub](https://github.com/TheFoolByte/tokokita-web/blob/main/docs/runbook.md) — panduan demo dari ujung ke ujung, dibaca langsung di browser.
+- **Panduan teknis presenter/penguji:** [`docs/demo-runbook.md`](docs/demo-runbook.md)
+
 Toko online multi-halaman (HTML/CSS/JS) + backend Python stdlib + SQLite.
 Celahnya nyata di sisi server, jadi bisa didemokan lewat browser maupun Burp Suite.
 
@@ -57,6 +63,8 @@ tokokita-web/
 
 ## Celah yang disengaja
 
+**6 kategori, 7 adegan.** SQL Injection tampil dua kali (login + lab sqlmap); sesi lemah adalah kategori sendiri, bukan bagian dari XSS. Urutan rundown resmi 12 menit: **harga Rp100 → IDOR order #201 → SQLi login → sqlmap lab → Stored XSS + collector → upload/shell simulasi → mitigasi + reset**.
+
 ### 1. SQL injection — bypass login
 
 Halaman Masuk, isi:
@@ -97,7 +105,18 @@ document.cookie = "user=kamila; path=/";
 location.reload();
 ```
 
-### 3. Harga checkout dari client
+### 3. Sesi lemah — cookie dipercaya apa adanya
+
+Cookie `PHPSESSID` sengaja **tanpa `HttpOnly`** (bisa dibaca JavaScript), dan — ini kategori sendiri, bukan bagian dari XSS — server juga **percaya begitu saja pada cookie `user`** sebagai identitas, tanpa memeriksa token apa pun. Jadi siapa pun bisa jadi admin tanpa password dan tanpa mencuri apa pun:
+
+```js
+document.cookie = "user=kamila; path=/";
+location.reload();
+```
+
+Adegan ini menyatu dengan adegan Stored XSS (kategori 2): cookie admin yang tercuri lewat XSS dikirim ke `/collector`, dan jalur cookie `user` ini adalah cadangan kalau XSS gagal saat live.
+
+### 4. Harga checkout dari client
 
 Halaman pembayaran menyimpan harga di hidden input `priceField<id>`. Lewat
 Inspect, ubah `value="8999000"` jadi `value="100"`, lalu bayar. Request
@@ -107,7 +126,7 @@ Inspect, ubah `value="8999000"` jadi `value="100"`, lalu bayar. Request
 Total yang dibayar: Rp 100
 ```
 
-### 4. IDOR — intip pesanan orang lain
+### 5. IDOR — intip pesanan orang lain
 
 Login sebagai `rohandhika`, buka:
 
@@ -119,7 +138,7 @@ Langsung tampil pesanan Kamila (alamat `Jl. Merdeka No. 45, Medan`). Ganti ke
 `?id=202` untuk pesanan Sari Dewi. Endpoint `GET /api/orders/<id>` tidak
 mengecek pemilik.
 
-### 5. Upload file → shell PHP (simulasi)
+### 6. Upload file → shell PHP (simulasi)
 
 Di halaman Profil, unggah file bernama `shell.php` (isi bebas, misalnya
 `<?php system($_GET['cmd']); ?>` — **tidak akan dieksekusi**). Server tidak
@@ -133,7 +152,7 @@ Muncul tampilan shell dengan output palsu (`www-data`, `ls`, `cat .env`, dst.).
 Semua output di-hardcode di `SHELL_OUTPUTS` pada `server.py`; tidak ada
 `os.system`/`exec`.
 
-### 6. SQL injection — katalog fixture khusus sqlmap
+### 7. SQL injection — katalog fixture khusus sqlmap
 
 Endpoint `GET /api/lab/search?category=electronics` sengaja rentan, tetapi memakai
 file DB terpisah `tokokita-lab.db` yang hanya berisi empat produk dummy. Endpoint
