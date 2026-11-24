@@ -1,4 +1,4 @@
-# Panduan Presenter untuk Kamila
+# Panduan
 
 ## Baca ini sebelum demo
 
