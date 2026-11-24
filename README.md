@@ -10,6 +10,7 @@
 ## Lihat di web
 
 - **Demo online (aplikasi):** <https://tokokita-web-production.up.railway.app/> — toko demo yang sudah jalan, bisa dibuka dari browser mana saja.
+- **Preview web README:** <https://muse.ai/s/readme-tokokita-hv6xeo40xu3jxf/yv595U8wVbWZfT3trZ8dYW3T_wKQUXEiBRg_e0ZWw7E> — halaman web README ini, dengan preview live demo TokoKita di dalamnya.
 - **Runbook lengkap (tampilan web):** [docs/runbook.md di GitHub](https://github.com/TheFoolByte/tokokita-web/blob/main/docs/runbook.md) — panduan demo dari ujung ke ujung, dibaca langsung di browser.
 - **Panduan teknis presenter/penguji:** [`docs/demo-runbook.md`](docs/demo-runbook.md)
 
