@@ -31,7 +31,7 @@ Gunakan tool sesuai kebutuhan, bukan sebanyak-banyaknya:
 - Collector XSS: <https://tokokita-web-production.up.railway.app/collector>
 - Endpoint sqlmap lokal: `/api/lab/search?category=electronics` — tersedia di source lokal terbaru. Deployment publik saat ini mungkin belum memiliki route ini.
 
-**Jumlah temuan:** 5 kelas kerentanan aplikasi: SQL injection, stored XSS, manipulasi harga client-side, IDOR, dan upload tanpa validasi. Ada 6 skenario/endpoint demo karena SQLi punya dua jalur (bypass login dan fixture sqlmap). Shell adalah simulasi dampak upload, bukan RCE sungguhan. Nmap hanya latihan reconnaissance lokal, bukan kerentanan aplikasi.
+**Jumlah temuan:** 6 kategori, 7 adegan: SQL injection (1 kategori, 2 adegan: bypass login dan fixture sqlmap), stored XSS, sesi lemah, manipulasi harga client-side, IDOR, dan upload tanpa validasi. Shell adalah simulasi dampak upload, bukan RCE sungguhan. Nmap hanya latihan reconnaissance lokal, bukan kerentanan aplikasi.
 
 Sebelum demo lokal, cek route dengan `curl`. Jangan jalankan sqlmap pada publik; jika kelak endpoint lab di-deploy setelah persetujuan terpisah, tetap jalankan sqlmap hanya localhost.
 
@@ -308,12 +308,13 @@ Jangan klaim ini sebagai RCE sungguhan. Tidak ada eksekusi perintah.
 
 1. **0:00–1:00 — Izin dan scope.** Kamila pemilik; Jun penguji berizin; semua akun dan data dummy.
 2. **1:00–2:00 — Peta aplikasi.** Tunjukkan halaman login, katalog, checkout, review, order.
-3. **2:00–4:00 — SQLi.** Burp Repeater bypass login; jelaskan query memercayai input.
-4. **4:00–5:00 — sqlmap lokal.** Tampilkan hasil yang sudah disiapkan/screenshot; `curl` memperlihatkan empat fixture dalam satu request.
-5. **5:00–7:00 — Checkout dan IDOR.** Satu perubahan harga dan satu record order demo.
-6. **7:00–9:00 — Stored XSS.** Browser presenter saja; tunjukkan alert atau collector, jangan tampilkan token mentah.
-7. **9:00–10:00 — Upload simulasi.** Opsional, lokal saja; tekankan bukan RCE.
-8. **10:00–12:00 — Mitigasi, reset, Q&A.** Sampaikan batas yang diuji dan apa yang tidak diuji.
+3. **2:00–3:00 — Checkout harga Rp100.** Ubah harga di client; total order demo menjadi Rp100.
+4. **3:00–4:00 — IDOR order #201.** Akses order fixture akun demo lain.
+5. **4:00–6:00 — SQLi login.** Burp Repeater bypass login; jelaskan query memercayai input.
+6. **6:00–7:00 — sqlmap lokal.** Tampilkan hasil yang sudah disiapkan/screenshot; `curl` memperlihatkan empat fixture dalam satu request.
+7. **7:00–9:00 — Stored XSS + collector.** Browser presenter saja; tunjukkan alert atau collector, jangan tampilkan token mentah.
+8. **9:00–10:00 — Upload simulasi.** Opsional, lokal saja; tekankan bukan RCE.
+9. **10:00–12:00 — Mitigasi, reset, Q&A.** Sampaikan batas yang diuji dan apa yang tidak diuji.
 
 Nmap dapat dijalankan sebelum presentasi di laptop lokal dan hasilnya ditampilkan singkat sebagai konteks port—bukan sebagai pemindaian terhadap hosting.
 
